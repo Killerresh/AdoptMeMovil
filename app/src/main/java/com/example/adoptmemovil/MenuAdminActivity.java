@@ -25,14 +25,6 @@ public class MenuAdminActivity extends AppCompatActivity {
         findViewById(R.id.btn_logout).setOnClickListener(v -> {
             startActivity(new Intent(MenuAdminActivity.this, LoginActivity.class));
         });
-
-        /*LinearLayout btnConsultarUsuario = findViewById(R.id.btn_perfil);
-        btnConsultarUsuario.setOnClickListener(v -> {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, new ConsultarUsuarioFragment())
-                    .commit();
-        });*/
     }
 
     private void loadFragment(Fragment fragment) {
