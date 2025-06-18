@@ -4,7 +4,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ClienteAPI {
-    private static final String BASE_URL = "http://192.168.100.139:8080/api/";
+    private static final String BASE_URL = "http://192.168.100.132:8080/api/";
     private static Retrofit retrofit = null;
 
     public static Retrofit getRetrofit() {
@@ -27,5 +27,9 @@ public class ClienteAPI {
 
     public static UbicacionServicios getUbicacionServicios() {
         return getRetrofit().create(UbicacionServicios.class);
+    }
+
+    public static SolicitudAdopcionServicios getSolicitudAdopcionServicios() {
+        return getRetrofit().create(SolicitudAdopcionServicios.class);
     }
 }

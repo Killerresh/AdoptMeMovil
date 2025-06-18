@@ -1,12 +1,13 @@
 package com.example.adoptmemovil.modelo;
 
 public class SolicitudAdopcion {
-    public int solicitudAdopcionID;
-    public boolean estado;
-    public int mascotaID;
-    public Integer adoptanteID;
-    public int publicadorID;
-    public int ubicacionID;
+    private int solicitudAdopcionID;
+    private boolean estado;
+    private Integer adoptanteID;
+    private int publicadorID;
+
+    private Mascota mascota;
+    private Ubicacion ubicacion;
 
     public int getSolicitudAdopcionID() {
         return solicitudAdopcionID;
@@ -22,14 +23,6 @@ public class SolicitudAdopcion {
 
     public void setEstado(boolean estado) {
         this.estado = estado;
-    }
-
-    public int getMascotaID() {
-        return mascotaID;
-    }
-
-    public void setMascotaID(int mascotaID) {
-        this.mascotaID = mascotaID;
     }
 
     public Integer getAdoptanteID() {
@@ -48,11 +41,21 @@ public class SolicitudAdopcion {
         this.publicadorID = publicadorID;
     }
 
-    public int getUbicacionID() {
-        return ubicacionID;
+    // Getters y setters para Mascota
+    public Mascota getMascota() {
+        return mascota;
     }
 
-    public void setUbicacionID(int ubicacionID) {
-        this.ubicacionID = ubicacionID;
+    public void setMascota(Mascota mascota) {
+        this.mascota = mascota;
+    }
+
+    // Getters y setters para Ubicacion
+    public Ubicacion getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(Ubicacion ubicacion) {
+        this.ubicacion = ubicacion;
     }
 }
