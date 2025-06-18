@@ -1,9 +1,15 @@
 package com.example.adoptmemovil.modelo;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Mensaje {
+    @SerializedName("MensajeID")
     public int mensajeID;
+    @SerializedName("RemitenteID")
     public int remitenteID;
+    @SerializedName("ReceptorID")
     public int receptorID;
+    @SerializedName("Contenido")
     public String contenido;
 
     public int getMensajeID() {

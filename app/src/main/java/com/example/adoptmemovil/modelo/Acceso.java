@@ -1,9 +1,15 @@
 package com.example.adoptmemovil.modelo;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Acceso {
+    @SerializedName("AccesoID")
     public int accesoID;
+    @SerializedName("Correo")
     public String correo;
+    @SerializedName("ContrasenaHash")
     public String contrasenaHash;
+    @SerializedName("EsAdmin")
     public boolean esAdmin;
 
     public int getAccesoID() {

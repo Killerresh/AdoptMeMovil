@@ -1,13 +1,23 @@
 package com.example.adoptmemovil.modelo;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Mascota {
+    @SerializedName("MascotaID")
     public int mascotaID;
+    @SerializedName("Nombre")
     public String nombre;
+    @SerializedName("Especie")
     public String especie;
+    @SerializedName("Raza")
     public String raza;
+    @SerializedName("Edad")
     public String edad;
+    @SerializedName("Sexo")
     public String sexo;
+    @SerializedName("Tamano")
     public String tamano;
+    @SerializedName("Descripcion")
     public String descripcion;
 
     public int getMascotaID() {

@@ -1,10 +1,17 @@
 package com.example.adoptmemovil.modelo;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Usuario {
+    @SerializedName("UsuarioID")
     public int usuarioID;
+    @SerializedName("Nombre")
     public String nombre;
+    @SerializedName("Telefono")
     public String telefono;
+    @SerializedName("Ubicacion")
     public Ubicacion ubicacion;
+    @SerializedName("Acceso")
     public Acceso acceso;
 
     public int getUsuarioID() {

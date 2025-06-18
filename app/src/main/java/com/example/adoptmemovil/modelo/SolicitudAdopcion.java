@@ -1,11 +1,19 @@
 package com.example.adoptmemovil.modelo;
 
+import com.google.gson.annotations.SerializedName;
+
 public class SolicitudAdopcion {
+    @SerializedName("SolicitudAdopcionID")
     public int solicitudAdopcionID;
+    @SerializedName("Estado")
     public boolean estado;
+    @SerializedName("MascotaID")
     public int mascotaID;
+    @SerializedName("AdoptanteID")
     public Integer adoptanteID;
+    @SerializedName("PublicadorID")
     public int publicadorID;
+    @SerializedName("UbicacionID")
     public int ubicacionID;
 
     public int getSolicitudAdopcionID() {
