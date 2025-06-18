@@ -25,12 +25,12 @@
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/etNombre"
+        android:id="@+id/etCorreo"
         android:layout_width="327dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:background="@drawable/edittext_background"
-        android:hint="Nombre"
+        android:hint="Correo"
         android:inputType="text"
         android:padding="15dp" />
 

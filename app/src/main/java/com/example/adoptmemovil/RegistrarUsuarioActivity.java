@@ -1,22 +1,30 @@
 package com.example.adoptmemovil;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.adoptmemovil.modelo.Ubicacion;
+
 
 public class RegistrarUsuarioActivity extends AppCompatActivity {
-
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+    private Ubicacion ubicacion;
     private EditText etNombre;
     private EditText etCorreo;
     private EditText etPassword;
     private EditText etConfirmPassword;
     private EditText etTelefono;
-    private EditText etCiudad;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,11 +37,15 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         etTelefono = findViewById(R.id.etTelefono);
-        etCiudad = findViewById(R.id.etCiudad);
 
         // Botón de retroceso
         ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(view -> finish());
+
+        Button btnRegistrarUbicacion = findViewById(R.id.btnRegistrarUbicacion);
+        btnRegistrarUbicacion.setOnClickListener(view -> {
+            solicitarPermisoUbicacion();
+        });
 
         // Botón de registro
         Button btnRegistrar = findViewById(R.id.btnRegistrar);
@@ -50,10 +62,9 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
         String telefono = etTelefono.getText().toString().trim();
-        String ciudad = etCiudad.getText().toString().trim();
 
         if (nombre.isEmpty() || correo.isEmpty() || password.isEmpty() ||
-                confirmPassword.isEmpty() || telefono.isEmpty() || ciudad.isEmpty()) {
+                confirmPassword.isEmpty() || telefono.isEmpty()) {
             mostrarError("Todos los campos son obligatorios");
             return false;
         }
@@ -92,6 +103,34 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
         etPassword.getText().clear();
         etConfirmPassword.getText().clear();
         etTelefono.getText().clear();
-        etCiudad.getText().clear();
     }
+
+    private void solicitarPermisoUbicacion() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        } else {
+            Toast.makeText(this, "Permiso de ubicación ya concedido", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permiso de ubicación concedido", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(this, MapaRegistroActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 }

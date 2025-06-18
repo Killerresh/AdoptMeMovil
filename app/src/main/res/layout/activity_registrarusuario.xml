@@ -85,23 +85,30 @@
             android:maxLength="10"
             android:padding="15dp" />
 
-        <!-- Ciudad -->
-        <EditText
-            android:id="@+id/etCiudad"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/edittext_background"
-            android:hint="Ciudad"
-            android:inputType="textCapWords"
-            android:padding="15dp" />
+    <!-- Botón para registrar ubicación -->
 
+    <TextView
+        android:id="@+id/tvOpcional"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Opcional"
+        android:textColor="#2196F3"
+        android:textStyle="normal" />
+
+    <Button
+            android:id="@+id/btnRegistrarUbicacion"
+            android:layout_width="201dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#00DF82"
+            android:text="Registrar ubicación"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white" />
 
 
         <!-- Botón de registro -->
         <Button
             android:id="@+id/btnRegistrar"
-            android:layout_width="201dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:backgroundTint="#73EF41"

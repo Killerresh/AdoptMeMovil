@@ -2,6 +2,7 @@ package com.example.adoptmemovil;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,7 +11,23 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.adoptmemovil.modelo.ResultadoHttp;
+import com.example.adoptmemovil.modelo.request.IniciarSesionRequest;
+import com.example.adoptmemovil.modelo.response.IniciarSesionResponse;
+import com.example.adoptmemovil.servicios.AccesoServicios;
+import com.example.adoptmemovil.servicios.ClienteAPI;
+import com.example.adoptmemovil.utilidades.Encriptador;
+import com.example.adoptmemovil.utilidades.HttpCallback;
+import com.example.adoptmemovil.utilidades.HttpHelper;
+import com.example.adoptmemovil.utilidades.UsuarioSingleton;
+
+import java.io.Console;
+
+import retrofit2.Call;
+
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "LoginActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,25 +38,17 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText etNombre = findViewById(R.id.etNombre);
+                EditText etCorreo = findViewById(R.id.etCorreo);
                 EditText etPassword = findViewById(R.id.etPassword);
 
-                String nombre = etNombre.getText().toString();
+                String correo = etCorreo.getText().toString();
                 String password = etPassword.getText().toString();
 
-                if (nombre.isEmpty() || password.isEmpty()) {
+                if (correo.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "¡Completa todos los campos!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                    if (nombre.equalsIgnoreCase("admin")) {
-                        // Ir a MenuAdminActivity si el usuario es admin
-                        Intent intent = new Intent(LoginActivity.this, MenuAdminActivity.class);
-                        startActivity(intent);
-                    } else {
-                        // Ir a MenuActivity para usuarios normales
-                        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                        startActivity(intent);
-                    }
+                    String contrasenaHash = Encriptador.generarHashSHA512(password);
+                    iniciarSesion(correo, contrasenaHash);
                 }
             }
         });
@@ -51,6 +60,35 @@ public class LoginActivity extends AppCompatActivity {
                 // Ir a RegistrarUsuarioActivity
                 Intent intent = new Intent(LoginActivity.this, RegistrarUsuarioActivity.class);
                 startActivity(intent);
+            }
+        });
+    }
+
+    public void iniciarSesion(String correo, String contrasenaHash) {
+        AccesoServicios servicios = ClienteAPI.getAccesoServicios();
+
+        IniciarSesionRequest request = new IniciarSesionRequest(correo, contrasenaHash);
+
+        Call<IniciarSesionResponse> call = servicios.iniciarSesion(request);
+
+        HttpHelper.ejecutarHttp(call, new HttpCallback<IniciarSesionResponse>() {
+            @Override
+            public void onRespuesta(ResultadoHttp<IniciarSesionResponse> resultado) {
+                if (resultado.exito) {
+                    IniciarSesionResponse respuesta = resultado.contenido;
+                    UsuarioSingleton.getInstancia().iniciarSesion(respuesta.usuario, respuesta.token);
+
+                    Intent intent;
+                    if (!respuesta.esAdmin) {
+                        intent = new Intent(LoginActivity.this, MenuActivity.class);
+                    } else {
+                        intent = new Intent(LoginActivity.this, MenuAdminActivity.class);
+                    }
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(LoginActivity.this, resultado.mensajeError, Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, resultado.mensajeError + resultado.codigo);
+                }
             }
         });
     }
