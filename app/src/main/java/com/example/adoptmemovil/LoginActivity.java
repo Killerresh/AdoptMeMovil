@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.adoptmemovil.modelo.ResultadoHttp;
+import com.example.adoptmemovil.modelo.Ubicacion;
 import com.example.adoptmemovil.modelo.request.IniciarSesionRequest;
 import com.example.adoptmemovil.modelo.response.IniciarSesionResponse;
 import com.example.adoptmemovil.servicios.AccesoServicios;
@@ -85,8 +86,11 @@ public class LoginActivity extends AppCompatActivity {
                         intent = new Intent(LoginActivity.this, MenuAdminActivity.class);
                     }
                     startActivity(intent);
+                } else if (resultado.codigo == 401) {
+                    Toast.makeText(LoginActivity.this, "El correo y/o contraseña son incorrectas", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, resultado.mensajeError + resultado.codigo);
                 } else {
-                    Toast.makeText(LoginActivity.this, resultado.mensajeError, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, resultado.mensajeError, Toast.LENGTH_LONG).show();
                     Log.e(TAG, resultado.mensajeError + resultado.codigo);
                 }
             }

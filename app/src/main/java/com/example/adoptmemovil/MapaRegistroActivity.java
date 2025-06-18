@@ -5,76 +5,80 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.example.adoptmemovil.modelo.Ubicacion;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+import org.osmdroid.views.overlay.Marker;
+
+import java.io.File;
 
 public class MapaRegistroActivity extends AppCompatActivity {
 
-    private static final int REQUEST_PERMISOS_UBICACION = 1001;
     private MapView mapView;
-    private MyLocationNewOverlay locationOverlay;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_mapa_registro);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mapaRegistro), (v, insets) -> {
-            v.setPadding(
-                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).left,
-                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).top,
-                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).right,
-                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            );
-            return insets;
-        });
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
 
-        Configuration.getInstance().load(getApplicationContext(),
-                getSharedPreferences("osmdroid", MODE_PRIVATE));
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_mapa_registro);
+        Toast.makeText(this, "Llegó al setContentView", Toast.LENGTH_SHORT).show();
+
+        File osmDir = new File(getFilesDir(), "osmdroid");
+        File tileCache = new File(osmDir, "tiles");
+        Configuration.getInstance().setOsmdroidBasePath(osmDir);
+        Configuration.getInstance().setOsmdroidTileCache(tileCache);
+
+        Configuration.getInstance().load(
+                getApplicationContext(),
+                getSharedPreferences("osmdroid", 0)
+        );
 
         mapView = findViewById(R.id.mapaRegistro);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
 
-        inicializarMapaConUbicacion();
+        // Obtener datos del intent
+        double latitud = getIntent().getDoubleExtra("latitud", 0.0);
+        double longitud = getIntent().getDoubleExtra("longitud", 0.0);
+        String ciudad = getIntent().getStringExtra("ciudad");
+        String estado = getIntent().getStringExtra("estado");
+        String pais = getIntent().getStringExtra("pais");
+
+        Ubicacion ubicacion = new Ubicacion();
+        ubicacion.latitud = latitud;
+        ubicacion.longitud = longitud;
+        ubicacion.ciudad = ciudad;
+        ubicacion.estado = estado;
+        ubicacion.pais = pais;
+
+        inicializarMapaConUbicacion(ubicacion);
     }
 
-    private void inicializarMapaConUbicacion() {
-        // Verifica si ya tienes el permiso
+    private void inicializarMapaConUbicacion(Ubicacion ubicacion) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
 
-            locationOverlay = new MyLocationNewOverlay(
-                    new GpsMyLocationProvider(this), mapView);
-            locationOverlay.enableMyLocation();
-            locationOverlay.enableFollowLocation();
-            mapView.getOverlays().add(locationOverlay);
+            GeoPoint punto = new GeoPoint(ubicacion.latitud, ubicacion.longitud);
             mapView.getController().setZoom(15.0);
+            mapView.getController().setCenter(punto);
+
+            Marker marcador = new Marker(mapView);
+            marcador.setPosition(punto);
+            marcador.setTitle("Tu ubicación");
+            mapView.getOverlays().add(marcador);
+
+            Toast.makeText(this, "Se creó el mapa de registro", Toast.LENGTH_SHORT).show();
 
         } else {
-            // Si por alguna razón no tienes el permiso, muestra un mensaje o cierra la actividad
-            Toast.makeText(this, "No se tiene permiso de ubicación", Toast.LENGTH_SHORT).show();
-            finish(); // Opcional
+            Toast.makeText(this, "Permiso de ubicación no concedido", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void mostrarUbicacion() {
-        locationOverlay = new MyLocationNewOverlay(
-                new GpsMyLocationProvider(this), mapView);
-        locationOverlay.enableMyLocation();
-        locationOverlay.enableFollowLocation();
-        mapView.getOverlays().add(locationOverlay);
-        mapView.getController().setZoom(15.0);
     }
 
     @Override

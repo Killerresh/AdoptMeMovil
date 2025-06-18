@@ -1,24 +1,38 @@
 package com.example.adoptmemovil;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.Manifest;
 import android.content.pm.PackageManager;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.adoptmemovil.modelo.Ubicacion;
+import com.example.adoptmemovil.utilidades.Validador;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 
 public class RegistrarUsuarioActivity extends AppCompatActivity {
     private static final int REQUEST_LOCATION_PERMISSION = 1;
-    private Ubicacion ubicacion;
+    private FusedLocationProviderClient fusedLocationClient;
+
+    private Ubicacion ubicacionFinal;
     private EditText etNombre;
     private EditText etCorreo;
     private EditText etPassword;
@@ -31,14 +45,14 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrarusuario);
 
-        // Inicialización de vistas
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         etNombre = findViewById(R.id.etNombre);
         etCorreo = findViewById(R.id.etCorreo);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         etTelefono = findViewById(R.id.etTelefono);
 
-        // Botón de retroceso
         ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(view -> finish());
 
@@ -47,7 +61,6 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
             solicitarPermisoUbicacion();
         });
 
-        // Botón de registro
         Button btnRegistrar = findViewById(R.id.btnRegistrar);
         btnRegistrar.setOnClickListener(view -> {
             if (validarCampos()) {
@@ -69,8 +82,18 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!correo.contains("@") || !correo.endsWith(".com")) {
+        if (!Validador.validarNombre(nombre)) {
+            mostrarError("Ingrese un nombre válido");
+            return false;
+        }
+
+        if (!Validador.validarCorreo(correo)) {
             mostrarError("Ingrese un correo válido (ejemplo@dominio.com)");
+            return false;
+        }
+
+        if (!Validador.validarContrasena(nombre)) {
+            mostrarError("Ingrese una contraseña válida");
             return false;
         }
 
@@ -79,7 +102,7 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
             return false;
         }
 
-        if (telefono.length() != 10 || !telefono.matches("\\d+")) {
+        if (!Validador.validarTelefono(telefono)) {
             mostrarError("El teléfono debe tener 10 dígitos numéricos");
             return false;
         }
@@ -90,7 +113,7 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
     private void registrarUsuario() {
         Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show();
         limpiarCampos();
-        finish(); // Opcional: Regresar al login
+        finish();
     }
 
     private void mostrarError(String mensaje) {
@@ -110,10 +133,11 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    },
                     REQUEST_LOCATION_PERMISSION);
-        } else {
-            Toast.makeText(this, "Permiso de ubicación ya concedido", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -122,15 +146,69 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permiso de ubicación concedido", Toast.LENGTH_SHORT).show();
+            boolean fineLocationGranted = false;
+            boolean coarseLocationGranted = false;
 
-                Intent intent = new Intent(this, MapaRegistroActivity.class);
-                startActivity(intent);
+            for (int i = 0; i < permissions.length; i++) {
+                if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    fineLocationGranted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
+                }
+                if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    coarseLocationGranted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
+                }
+            }
+
+            if (fineLocationGranted || coarseLocationGranted) {
+                obtenerUbicacionYContinuar();
             } else {
-                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permisos de ubicación denegados", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void obtenerUbicacionYContinuar() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        double latitud = location.getLatitude();
+                        double longitud = location.getLongitude();
+
+                        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                        try {
+                            List<Address> direcciones = geocoder.getFromLocation(latitud, longitud, 1);
+                            assert direcciones != null;
+                            if (!direcciones.isEmpty()) {
+                                Intent intent = crearIntentMapaRegistro(direcciones, latitud, longitud);
+                                startActivity(intent);
+                            }
+                        } catch (IOException e) {
+                            Toast.makeText(this, "No se pudo obtener dirección", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    @NonNull
+    private Intent crearIntentMapaRegistro(List<Address> direcciones, double latitud, double longitud) {
+        Address direccion = direcciones.get(0);
+        String ciudad = direccion.getLocality();
+        String estado = direccion.getAdminArea();
+        String pais = direccion.getCountryName();
+
+        Intent intent = new Intent(this, MapaRegistroActivity.class);
+        intent.putExtra("latitud", latitud);
+        intent.putExtra("longitud", longitud);
+        intent.putExtra("ciudad", ciudad);
+        intent.putExtra("estado", estado);
+        intent.putExtra("pais", pais);
+        return intent;
     }
 
 }
