@@ -2,7 +2,6 @@ package com.example.adoptmemovil;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -15,10 +14,10 @@ public class MenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
 
         // Cargar fragmento inicial
-        loadFragment(new HomeFragment());
+        loadFragment(new MapaFragment());
 
         // Configurar botones
-        findViewById(R.id.btn_home).setOnClickListener(v -> loadFragment(new HomeFragment()));
+        findViewById(R.id.btn_home).setOnClickListener(v -> loadFragment(new MapaFragment()));
         findViewById(R.id.btn_registrarMascota).setOnClickListener(v -> loadFragment(new RegistrarAdopcionFragment()));
         findViewById(R.id.btn_mascotas).setOnClickListener(v -> loadFragment(new AdopcionesRegistradasFragment()));
         //findViewById(R.id.btn_messages).setOnClickListener(v -> loadFragment(new MessagesFragment()));
