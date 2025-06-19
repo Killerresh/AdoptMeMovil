@@ -15,6 +15,8 @@ public class SolicitudAdopcion {
     public int publicadorID;
     @SerializedName("UbicacionID")
     public int ubicacionID;
+    @SerializedName("FechaSolicitud")
+    private String fecha;
     @SerializedName("Mascota")
     private Mascota mascota;
     @SerializedName("Ubicacion")
@@ -68,7 +70,6 @@ public class SolicitudAdopcion {
         this.ubicacionID = ubicacionID;
     }
 
-    // Getters y setters para Mascota
     public Mascota getMascota() {
         return mascota;
     }
@@ -77,12 +78,20 @@ public class SolicitudAdopcion {
         this.mascota = mascota;
     }
 
-    // Getters y setters para Ubicacion
     public Ubicacion getUbicacion() {
         return ubicacion;
     }
 
     public void setUbicacion(Ubicacion ubicacion) {
         this.ubicacion = ubicacion;
+    }
+
+    // ⬇️ Getter y Setter de la fecha
+    public String getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
     }
 }

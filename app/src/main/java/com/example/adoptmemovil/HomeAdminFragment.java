@@ -1,6 +1,5 @@
 package com.example.adoptmemovil;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +30,12 @@ public class HomeAdminFragment extends Fragment {
         btnReporteEnAdopcion = view.findViewById(R.id.btn_reporte_en_adopcion);
 
         btnReporteAdoptadas.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("estado", true); // True = Adoptadas
+
             Fragment fragment = new ReporteFragment();
+            fragment.setArguments(bundle);
+
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, fragment)
@@ -40,14 +44,17 @@ public class HomeAdminFragment extends Fragment {
         });
 
         btnReporteEnAdopcion.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("estado", false); // False = Pendientes
+
             Fragment fragment = new ReporteFragment();
+            fragment.setArguments(bundle);
+
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .addToBackStack(null)
                     .commit();
         });
-
     }
 }
-

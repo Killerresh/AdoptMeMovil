@@ -20,7 +20,7 @@ public class MenuActivity extends AppCompatActivity {
 
         // Configurar botones
         findViewById(R.id.btn_home).setOnClickListener(v -> loadFragment(new MapaFragment()));
-        findViewById(R.id.btn_registrarMascota).setOnClickListener(v -> loadFragment(new RegistrarAdopcionFragment()));
+        findViewById(R.id.btn_registrarMascota).setOnClickListener(v -> loadFragment(new com.example.adoptmemovil.RegistrarAdopcionFragment()));
         findViewById(R.id.btn_mascotas).setOnClickListener(v -> loadFragment(new AdopcionesRegistradasFragment()));
         //findViewById(R.id.btn_messages).setOnClickListener(v -> loadFragment(new MessagesFragment()));
         findViewById(R.id.btn_perfil).setOnClickListener(v -> loadFragment(new ConsultarUsuarioFragment()));

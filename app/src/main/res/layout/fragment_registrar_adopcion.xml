@@ -28,6 +28,7 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
+        <!-- Campos de entrada -->
         <EditText
             android:id="@+id/input_nombre"
             android:layout_width="match_parent"
@@ -119,6 +120,7 @@
             android:gravity="top"
             android:layout_marginBottom="10dp" />
 
+        <!-- Botones y vista previa -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -127,24 +129,65 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="5dp">
 
-            <Button
-                android:id="@+id/btn_subir_foto"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#3AC1CB"
-                android:textColor="#FFF"
-                android:text="Subir foto" />
+                android:orientation="vertical"
+                android:layout_gravity="start">
+
+                <Button
+                    android:id="@+id/btn_elegir_ubicacion"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:text="Elegir ubicación"
+                    android:textColor="#FFF"
+                    android:backgroundTint="#FF9800"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="6dp" />
+
+                <Button
+                    android:id="@+id/btn_subir_foto"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:text="Subir foto"
+                    android:textColor="#FFF"
+                    android:backgroundTint="#3AC1CB"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="6dp" />
+
+                <Button
+                    android:id="@+id/btn_subir_video"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:text="Subir video"
+                    android:textColor="#FFF"
+                    android:backgroundTint="#3F51B5"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/txt_nombre_video"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="10sp"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#666666"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/imageViewPreview"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_marginStart="16dp"
                 android:scaleType="centerCrop"
                 android:background="#F2F2F2"
                 android:contentDescription="Vista previa de la imagen" />
         </LinearLayout>
 
+        <!-- Botón Registrar (se mantiene al final, alineado a la derecha) -->
         <Button
             android:id="@+id/btn_registrar"
             android:layout_width="wrap_content"
@@ -152,6 +195,7 @@
             android:text="Registrar"
             android:textColor="#FFF"
             android:backgroundTint="#4CAF50"
-            android:layout_gravity="end" />
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp" />
     </LinearLayout>
 </ScrollView>
