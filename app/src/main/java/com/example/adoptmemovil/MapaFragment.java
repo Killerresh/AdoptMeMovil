@@ -80,7 +80,7 @@ public class MapaFragment extends Fragment {
 
         servicioGrpc = new ServicioUbicacionGrpcCliente();
 
-        Ubicacion ubicacionUsuario = UsuarioSingleton.getInstancia().getUsuarioActual().ubicacion;
+        Ubicacion ubicacionUsuario = UsuarioSingleton.getInstancia().getUsuarioActual().getUbicacion();
 
         if (ubicacionUsuario != null) {
             obtenerYMostrarUbicacionUsuario(ubicacionUsuario);
@@ -90,8 +90,8 @@ public class MapaFragment extends Fragment {
     }
 
     private void obtenerYMostrarUbicacionUsuario(Ubicacion ubicacionUsuario) {
-        double latitud = ubicacionUsuario.latitud;
-        double longitud = ubicacionUsuario.longitud;
+        double latitud = ubicacionUsuario.getLatitud();
+        double longitud = ubicacionUsuario.getLongitud();
 
         GeoPoint ubicacion = new GeoPoint(latitud, longitud);
         agregarMarcadorUsuario(ubicacion);
@@ -143,7 +143,7 @@ public class MapaFragment extends Fragment {
         if (servicioGrpc == null) return;
 
         ubicacionGrpc.Ubicacion request = ubicacionGrpc.Ubicacion.newBuilder()
-                .setUsuarioId(UsuarioSingleton.getInstancia().getUsuarioActual().usuarioID)
+                .setUsuarioId(UsuarioSingleton.getInstancia().getUsuarioActual().getUsuarioID())
                 .setLatitud(latitud)
                 .setLongitud(longitud)
                 .build();

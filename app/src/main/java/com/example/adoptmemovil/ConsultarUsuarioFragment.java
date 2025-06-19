@@ -25,8 +25,8 @@ public class ConsultarUsuarioFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_consultar_usuario, container, false);
     }
-
-    /*@Override
+    /*
+    @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -37,7 +37,6 @@ public class ConsultarUsuarioFragment extends Fragment {
         textCiudad = view.findViewById(R.id.text_ciudad);
         imageViewPreview = view.findViewById(R.id.imageViewPreview);
 
-         Aquí deberías obtener los datos reales del usuario
         String nombre = "Juan Pérez";
         String correo = "juan.perez@email.com";
         String telefono = "555-1234567";

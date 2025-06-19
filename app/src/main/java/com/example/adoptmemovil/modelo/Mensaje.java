@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class Mensaje {
     @SerializedName("MensajeID")
-    public int mensajeID;
+    private int mensajeID;
     @SerializedName("RemitenteID")
-    public int remitenteID;
+    private int remitenteID;
     @SerializedName("ReceptorID")
-    public int receptorID;
+    private int receptorID;
     @SerializedName("Contenido")
-    public String contenido;
+    private String contenido;
 
     public int getMensajeID() {
         return mensajeID;

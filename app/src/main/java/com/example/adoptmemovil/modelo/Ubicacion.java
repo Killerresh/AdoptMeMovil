@@ -3,18 +3,18 @@ package com.example.adoptmemovil.modelo;
 import com.google.gson.annotations.SerializedName;
 
 public class Ubicacion {
-    @SerializedName("UbicacioID")
-    public Integer ubicacionID;
+    @SerializedName("UbicacionID")
+    private Integer ubicacionID;
     @SerializedName("Ciudad")
-    public String ciudad;
+    private String ciudad;
     @SerializedName("Estado")
-    public String estado;
+    private String estado;
     @SerializedName("Pais")
-    public String pais;
+    private String pais;
     @SerializedName("Longitud")
-    public Double longitud;
+    private double longitud;
     @SerializedName("Latitud")
-    public Double latitud;
+    private double latitud;
 
     public Integer getUbicacionID() {
         return ubicacionID;

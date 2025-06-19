@@ -4,15 +4,15 @@ import com.google.gson.annotations.SerializedName;
 
 public class Usuario {
     @SerializedName("UsuarioID")
-    public int usuarioID;
+    private int usuarioID;
     @SerializedName("Nombre")
-    public String nombre;
+    private String nombre;
     @SerializedName("Telefono")
-    public String telefono;
+    private String telefono;
     @SerializedName("Ubicacion")
-    public Ubicacion ubicacion;
+    private Ubicacion ubicacion;
     @SerializedName("Acceso")
-    public Acceso acceso;
+    private Acceso acceso;
 
     public int getUsuarioID() {
         return usuarioID;

@@ -174,8 +174,8 @@ public class RegistrarAdopcionFragment extends Fragment {
         solicitud.setAdoptanteID(2);   // Ajusta según corresponda, o déjalo null si no aplica
 
         solicitud.setEstado(false);  // Por defecto false (pendiente)
-        solicitud.setMascotaID(mascota.mascotaID);
-        solicitud.setUbicacionID(ubicacion.ubicacionID);
+        solicitud.setMascotaID(mascota.getMascotaID());
+        solicitud.setUbicacionID(ubicacion.getUbicacionID());
 
         // Llamar al servicio Retrofit para registrar
         SolicitudAdopcionServicios service = ClienteAPI.getRetrofit().create(SolicitudAdopcionServicios.class);
