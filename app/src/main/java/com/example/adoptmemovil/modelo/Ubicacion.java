@@ -3,7 +3,7 @@ package com.example.adoptmemovil.modelo;
 import com.google.gson.annotations.SerializedName;
 
 public class Ubicacion {
-    @SerializedName("UbicacioID")
+    @SerializedName("UbicacionID")
     public Integer ubicacionID;
     @SerializedName("Ciudad")
     public String ciudad;

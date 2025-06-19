@@ -15,8 +15,8 @@ public class Mascota {
     public String edad;
     @SerializedName("Sexo")
     public String sexo;
-    @SerializedName("Tamano")
-    public String tamano;
+    @SerializedName("Tamaño")
+    public String tamaño;
     @SerializedName("Descripcion")
     public String descripcion;
 
@@ -68,12 +68,12 @@ public class Mascota {
         this.sexo = sexo;
     }
 
-    public String getTamano() {
-        return tamano;
+    public String getTamaño() {
+        return tamaño;
     }
 
-    public void setTamano(String tamano) {
-        this.tamano = tamano;
+    public void setTamaño(String tamaño) {
+        this.tamaño = tamaño;
     }
 
     public String getDescripcion() {

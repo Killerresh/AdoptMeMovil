@@ -15,6 +15,10 @@ public class SolicitudAdopcion {
     public int publicadorID;
     @SerializedName("UbicacionID")
     public int ubicacionID;
+    @SerializedName("Mascota")
+    private Mascota mascota;
+    @SerializedName("Ubicacion")
+    private Ubicacion ubicacion;
 
     public int getSolicitudAdopcionID() {
         return solicitudAdopcionID;
@@ -62,5 +66,23 @@ public class SolicitudAdopcion {
 
     public void setUbicacionID(int ubicacionID) {
         this.ubicacionID = ubicacionID;
+    }
+
+    // Getters y setters para Mascota
+    public Mascota getMascota() {
+        return mascota;
+    }
+
+    public void setMascota(Mascota mascota) {
+        this.mascota = mascota;
+    }
+
+    // Getters y setters para Ubicacion
+    public Ubicacion getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(Ubicacion ubicacion) {
+        this.ubicacion = ubicacion;
     }
 }

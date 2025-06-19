@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.example.adoptmemovil.modelo.SolicitudAdopcion;
 import com.example.adoptmemovil.modelo.Ubicacion;
 import com.example.adoptmemovil.servicios.ClienteAPI;
 import com.example.adoptmemovil.servicios.SolicitudAdopcionServicios;
+import com.google.gson.Gson;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -78,11 +80,11 @@ public class RegistrarAdopcionFragment extends Fragment {
         inputDescripcion = view.findViewById(R.id.input_descripcion);
 
         // Campos de ubicación
-        inputLatitud.setText("19.541620");
+        /*inputLatitud.setText("19.541620");
         inputLongitud.setText("-96.932527");
         inputCiudad.setText("Xalapa");
         inputEstado.setText("Veracruz");
-        inputPais.setText("Mexico");
+        inputPais.setText("Mexico");*/
 
         btnSubirFoto = view.findViewById(R.id.btn_subir_foto);
         btnRegistrar = view.findViewById(R.id.btn_registrar);
@@ -111,23 +113,17 @@ public class RegistrarAdopcionFragment extends Fragment {
         String tamano = inputTamano.getText().toString().trim();
         String descripcion = inputDescripcion.getText().toString().trim();
 
-        // Validar campos obligatorios ubicación
-        String latStr = inputLatitud.getText().toString().trim();
-        String lonStr = inputLongitud.getText().toString().trim();
-        String ciudad = inputCiudad.getText().toString().trim();
-        String estado = inputEstado.getText().toString().trim();
-        String pais = inputPais.getText().toString().trim();
+        // Atributos para la ubicación
+        String latStr = "19.541620";
+        String lonStr = "-96.932527";
+        String ciudad = "Xalapa";
+        String estado = "Veracruz";
+        String pais = "México";
 
         if (TextUtils.isEmpty(nombre) || TextUtils.isEmpty(especie) || TextUtils.isEmpty(raza)
                 || TextUtils.isEmpty(ano) || TextUtils.isEmpty(mes)
-                || TextUtils.isEmpty(sexo) || TextUtils.isEmpty(tamano)) {
-            Toast.makeText(getContext(), "Por favor completa todos los campos obligatorios de la mascota", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (TextUtils.isEmpty(latStr) || TextUtils.isEmpty(lonStr)
-                || TextUtils.isEmpty(ciudad) || TextUtils.isEmpty(estado) || TextUtils.isEmpty(pais)) {
-            Toast.makeText(getContext(), "Por favor completa todos los campos obligatorios de ubicación", Toast.LENGTH_SHORT).show();
+                || TextUtils.isEmpty(sexo) || TextUtils.isEmpty(tamano) || TextUtils.isEmpty(descripcion)) {
+            Toast.makeText(getContext(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -145,7 +141,7 @@ public class RegistrarAdopcionFragment extends Fragment {
             return;
         }
 
-        // Construir la edad concatenando años y meses (puedes ajustarlo si quieres)
+        // Construir la edad concatenando años y meses
         String edad = ano + " años " + mes + " meses";
 
         // Construir objeto Mascota
@@ -155,7 +151,7 @@ public class RegistrarAdopcionFragment extends Fragment {
         mascota.setRaza(raza);
         mascota.setEdad(edad);
         mascota.setSexo(sexo);
-        mascota.setTamano(tamano);
+        mascota.setTamaño(tamano);
         mascota.setDescripcion(descripcion);
 
         // Construir objeto Ubicacion
@@ -170,25 +166,34 @@ public class RegistrarAdopcionFragment extends Fragment {
         SolicitudAdopcion solicitud = new SolicitudAdopcion();
 
         // Aquí debes asignar estos IDs según tu lógica de usuario (ejemplo, hardcodeado)
-        solicitud.setPublicadorID(1);  // Ajusta este valor dinámicamente según usuario autenticado
-        solicitud.setAdoptanteID(2);   // Ajusta según corresponda, o déjalo null si no aplica
+        solicitud.setPublicadorID(1);
+        solicitud.setAdoptanteID(2);
 
-        solicitud.setEstado(false);  // Por defecto false (pendiente)
-        solicitud.setMascotaID(mascota.mascotaID);
-        solicitud.setUbicacionID(ubicacion.ubicacionID);
+        solicitud.setEstado(false);
+        solicitud.setMascota(mascota);
+        solicitud.setUbicacion(ubicacion);
 
         // Llamar al servicio Retrofit para registrar
         SolicitudAdopcionServicios service = ClienteAPI.getRetrofit().create(SolicitudAdopcionServicios.class);
+
+        // Mostrar el JSON que se enviará al backend
+        Gson gson = new Gson();
+        Log.d("JSON_GENERADO", gson.toJson(solicitud));
 
         Call<ResponseBody> call = service.registrarSolicitudAdopcion(solicitud);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Solicitud de adopción registrada correctamente", Toast.LENGTH_LONG).show();
-                    limpiarCampos();
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Registro exitoso", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getContext(), "Error en el registro: " + response.code(), Toast.LENGTH_LONG).show();
+                    try {
+                        String errorJson = response.errorBody().string();
+                        Log.e("ERROR 400", "Mensaje del backend: " + errorJson);
+                        Toast.makeText(getContext(), "Error en el registro: " + errorJson, Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
