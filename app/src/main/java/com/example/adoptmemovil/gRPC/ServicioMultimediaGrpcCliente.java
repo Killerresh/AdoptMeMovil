@@ -1,5 +1,7 @@
 package com.example.adoptmemovil.gRPC;
 
+import static com.example.adoptmemovil.ConsultarUsuarioFragment.cargarFotoUsuario;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.adoptmemovil.utilidades.HeaderClientInterceptor;
@@ -37,7 +40,7 @@ public class ServicioMultimediaGrpcCliente {
     private final ServicioMultimediaGrpc.ServicioMultimediaStub stub;
     public ServicioMultimediaGrpcCliente() {
         ManagedChannel canal = ManagedChannelBuilder
-                .forAddress("192.168.100.139", 50051)
+                .forAddress("192.168.137.1", 50051)
                 .usePlaintext()
                 .build();
 
@@ -54,7 +57,9 @@ public class ServicioMultimediaGrpcCliente {
             Uri uri,
             int idReferencia,
             String[] extensionesPermitidas,
-            MetodoSubida metodoSubida
+            MetodoSubida metodoSubida,
+            String token,
+            ImageView imageView
     ) {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
@@ -86,12 +91,16 @@ public class ServicioMultimediaGrpcCliente {
                                 } else {
                                     mensajeError = t.toString();
                                 }
-                                mostrarDialogoError(context, "Error gRPC: " + mensajeError);
+                                mostrarDialogoError(context, "Error al subir el archivo");
                             }
 
                             @Override
                             public void onCompleted() {
                                 Log.d("gRPC", "Transferencia completada");
+
+                                new Handler(Looper.getMainLooper()).post(() -> {
+                                    cargarFotoUsuario(context, token, imageView);
+                                });
                             }
                         };
 

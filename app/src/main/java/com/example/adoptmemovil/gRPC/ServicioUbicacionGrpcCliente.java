@@ -21,7 +21,7 @@ public class ServicioUbicacionGrpcCliente {
 
     public ServicioUbicacionGrpcCliente() {
         channel = ManagedChannelBuilder
-                .forAddress("192.168.100.139", 50051)
+                .forAddress("192.168.137.1", 50051)
                 .usePlaintext()
                 .build();
 

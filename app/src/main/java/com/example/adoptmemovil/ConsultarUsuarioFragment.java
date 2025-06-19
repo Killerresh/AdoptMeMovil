@@ -5,14 +5,20 @@ import static android.view.View.VISIBLE;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +33,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -59,6 +66,8 @@ import multimedia.ChunkArchivo;
 import multimedia.RespuestaGeneral;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ConsultarUsuarioFragment extends Fragment {
     private PermisoHelper permisoHelper;
@@ -495,12 +504,9 @@ public class ConsultarUsuarioFragment extends Fragment {
                             uri,
                             UsuarioSingleton.getInstancia().getUsuarioActual().getUsuarioID(),
                             new String[]{".jpg", ".jpeg", ".png"},
-                            new MetodoSubida() {
-                                @Override
-                                public StreamObserver<ChunkArchivo> aplicar(StreamObserver<RespuestaGeneral> responseObserver) {
-                                    return cliente.getStub().subirFotoUsuario(responseObserver);
-                                }
-                            }
+                            responseObserver -> cliente.getStub().subirFotoUsuario(responseObserver),
+                            UsuarioSingleton.getInstancia().getToken(),
+                            imageViewPreview
                     );
                 }
             });
@@ -509,6 +515,47 @@ public class ConsultarUsuarioFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         selectorFotoLauncher.launch(intent);
+    }
+
+    public static void cargarFotoUsuario(Context context, String token, ImageView imageView) {
+        UsuarioServicios servicio = ClienteAPI.getRetrofit().create(UsuarioServicios.class);
+        Call<ResponseBody> llamada = servicio.obtenerFotoPerfil("Bearer " + token);
+
+        llamada.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    new Thread(() -> {
+                        try {
+                            Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                            UsuarioSingleton.getInstancia().getUsuarioActual().setFotoPerfil(bitmap);
+
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                imageView.setImageBitmap(bitmap);
+
+                                if (context instanceof AppCompatActivity) {
+                                    ImageView imageViewActivity = ((AppCompatActivity) context).findViewById(R.id.imageViewPreview);
+                                    if (imageViewActivity != null) {
+                                        imageViewActivity.setImageBitmap(bitmap);
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e("ConsultarUsuario", "No se pudo obtener la foto. Error: " + e);
+                        }
+                    }).start();
+                } else {
+                    Toast.makeText(context, "No se pudo obtener la foto", Toast.LENGTH_SHORT).show();
+                    Log.e("ConsultarUsuario", "No se pudo obtener la foto. Código: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(context, "No se pudo obtener la foto", Toast.LENGTH_SHORT).show();
+                Log.e("ConsultarUsuario", "Error al obtener la foto: " + t.getMessage());
+            }
+        });
     }
 
 }

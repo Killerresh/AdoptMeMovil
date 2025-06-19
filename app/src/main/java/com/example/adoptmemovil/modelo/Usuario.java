@@ -1,5 +1,7 @@
 package com.example.adoptmemovil.modelo;
 
+import android.graphics.Bitmap;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Usuario {
@@ -13,6 +15,7 @@ public class Usuario {
     private Ubicacion ubicacion;
     @SerializedName("Acceso")
     private Acceso acceso;
+    private Bitmap fotoPerfil;
 
     public int getUsuarioID() {
         return usuarioID;
@@ -53,4 +56,12 @@ public class Usuario {
     public void setAcceso(Acceso acceso) {
         this.acceso = acceso;
     }
+
+    public Bitmap getFotoPerfil() { return fotoPerfil; }
+
+    public void setFotoPerfil(Bitmap fotoPerfil) { this.fotoPerfil = fotoPerfil; }
+
+    public boolean hayFoto() { return fotoPerfil != null; }
+
+    public void limpiarFoto() { fotoPerfil = null; }
 }
