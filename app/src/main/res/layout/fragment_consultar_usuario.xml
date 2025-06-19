@@ -21,6 +21,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/txtNombre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="60dp"
@@ -29,6 +30,7 @@
             android:textSize="20sp"/>
 
         <TextView
+            android:id="@+id/txtCorreo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="60dp"
@@ -37,6 +39,7 @@
             android:textSize="20sp"/>
 
         <TextView
+            android:id="@+id/txtTelefono"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="60dp"
@@ -45,10 +48,20 @@
             android:textSize="20sp"/>
 
         <TextView
+            android:id="@+id/txtCiudad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="80dp"
             android:text="Ciudad: "
+            android:textColor="#000000"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/txtEstado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
+            android:text="Estado: "
             android:textColor="#000000"
             android:textSize="20sp"/>
 

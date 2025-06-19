@@ -7,19 +7,29 @@
     android:background="#207766"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/tvInformacion"
+        android:text="La ubicación puede no ser precisa, por favor, seleccione su ubicación dando un toque de ser necesario. "
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:layout_marginTop="30dp" />
+
     <!-- Mapa ocupa el espacio disponible -->
     <org.osmdroid.views.MapView
         android:id="@+id/mapaRegistro"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="20dp"
         android:layout_weight="1" />
 
     <!-- Sección inferior con texto y botones -->
     <TextView
         android:id="@+id/tvDatosUbicacion"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:textColor="#2196F3"
+        android:layout_height="130dp"
+        android:textColor="@color/white"
         android:textStyle="bold"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp" />
@@ -28,7 +38,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:gravity="end"
+        android:layout_marginBottom="10dp">
 
         <Button
             android:id="@+id/btnGuardar"

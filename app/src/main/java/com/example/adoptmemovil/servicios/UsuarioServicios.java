@@ -10,5 +10,4 @@ import retrofit2.http.POST;
 public interface UsuarioServicios {
     @POST("usuarios")
     Call<ResponseBody> registrarUsuario(@Body Usuario nuevoUsuario);
-
 }

@@ -4,17 +4,17 @@ import com.google.gson.annotations.SerializedName;
 
 public class SolicitudAdopcion {
     @SerializedName("SolicitudAdopcionID")
-    public int solicitudAdopcionID;
+    private int solicitudAdopcionID;
     @SerializedName("Estado")
-    public boolean estado;
+    private boolean estado;
     @SerializedName("MascotaID")
-    public int mascotaID;
+    private int mascotaID;
     @SerializedName("AdoptanteID")
-    public Integer adoptanteID;
+    private Integer adoptanteID;
     @SerializedName("PublicadorID")
-    public int publicadorID;
+    private int publicadorID;
     @SerializedName("UbicacionID")
-    public int ubicacionID;
+    private int ubicacionID;
 
     public int getSolicitudAdopcionID() {
         return solicitudAdopcionID;

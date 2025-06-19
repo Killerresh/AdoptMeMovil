@@ -28,4 +28,8 @@ public class ClienteAPI {
     public static UbicacionServicios getUbicacionServicios() {
         return getRetrofit().create(UbicacionServicios.class);
     }
+
+    public static SolicitudAdopcionServicios getSolicitudAdopcionServicios() {
+        return getRetrofit().create(SolicitudAdopcionServicios.class);
+    }
 }

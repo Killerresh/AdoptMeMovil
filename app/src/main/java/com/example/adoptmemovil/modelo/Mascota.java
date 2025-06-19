@@ -4,21 +4,21 @@ import com.google.gson.annotations.SerializedName;
 
 public class Mascota {
     @SerializedName("MascotaID")
-    public int mascotaID;
+    private int mascotaID;
     @SerializedName("Nombre")
-    public String nombre;
+    private String nombre;
     @SerializedName("Especie")
-    public String especie;
+    private String especie;
     @SerializedName("Raza")
-    public String raza;
+    private String raza;
     @SerializedName("Edad")
-    public String edad;
+    private String edad;
     @SerializedName("Sexo")
-    public String sexo;
+    private String sexo;
     @SerializedName("Tamano")
-    public String tamano;
+    private String tamano;
     @SerializedName("Descripcion")
-    public String descripcion;
+    private String descripcion;
 
     public int getMascotaID() {
         return mascotaID;

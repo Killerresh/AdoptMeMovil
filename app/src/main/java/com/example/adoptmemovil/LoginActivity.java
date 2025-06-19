@@ -58,7 +58,6 @@ public class LoginActivity extends AppCompatActivity {
         tvRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Ir a RegistrarUsuarioActivity
                 Intent intent = new Intent(LoginActivity.this, RegistrarUsuarioActivity.class);
                 startActivity(intent);
             }
@@ -82,8 +81,10 @@ public class LoginActivity extends AppCompatActivity {
                     Intent intent;
                     if (!respuesta.esAdmin) {
                         intent = new Intent(LoginActivity.this, MenuActivity.class);
+                        finish();
                     } else {
                         intent = new Intent(LoginActivity.this, MenuAdminActivity.class);
+                        finish();
                     }
                     startActivity(intent);
                 } else if (resultado.codigo == 401) {

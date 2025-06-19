@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class Acceso {
     @SerializedName("AccesoID")
-    public int accesoID;
+    private int accesoID;
     @SerializedName("Correo")
-    public String correo;
+    private String correo;
     @SerializedName("ContrasenaHash")
-    public String contrasenaHash;
+    private String contrasenaHash;
     @SerializedName("EsAdmin")
-    public boolean esAdmin;
+    private boolean esAdmin;
 
     public int getAccesoID() {
         return accesoID;

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.adoptmemovil.utilidades.UsuarioSingleton;
+
 public class MenuActivity extends AppCompatActivity {
 
     @Override
@@ -24,7 +26,10 @@ public class MenuActivity extends AppCompatActivity {
         findViewById(R.id.btn_perfil).setOnClickListener(v -> loadFragment(new ConsultarUsuarioFragment()));
 
         findViewById(R.id.btn_logout).setOnClickListener(v -> {
-            startActivity(new Intent(MenuActivity.this, LoginActivity.class));
+            Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
+            startActivity(intent);
+            UsuarioSingleton.getInstancia().cerrarSesion();
+            finish();
         });
     }
 
