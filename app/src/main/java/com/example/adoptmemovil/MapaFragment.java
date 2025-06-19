@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.adoptmemovil.gRPC.ServicioUbicacionGrpcCliente;
-import ubicacionGrpc.SolicitudCercana;
-import ubicacionGrpc.SolicitudesCercanas;
+import ubicacion.SolicitudCercana;
+import ubicacion.SolicitudesCercanas;
 
 public class MapaFragment extends Fragment {
 
@@ -142,7 +142,7 @@ public class MapaFragment extends Fragment {
     private void obtenerUsuariosCercanos(double latitud, double longitud) {
         if (servicioGrpc == null) return;
 
-        ubicacionGrpc.Ubicacion request = ubicacionGrpc.Ubicacion.newBuilder()
+        ubicacion.Ubicacion request = ubicacion.Ubicacion.newBuilder()
                 .setUsuarioId(UsuarioSingleton.getInstancia().getUsuarioActual().getUsuarioID())
                 .setLatitud(latitud)
                 .setLongitud(longitud)

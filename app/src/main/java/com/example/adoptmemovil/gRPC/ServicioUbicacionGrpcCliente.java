@@ -8,10 +8,10 @@ import java.util.concurrent.TimeUnit;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import ubicacionGrpc.ServicioUbicacionGrpc;
-import ubicacionGrpc.SolicitudCercana;
-import ubicacionGrpc.SolicitudesCercanas;
-import ubicacionGrpc.Ubicacion;
+import ubicacion.ServicioUbicacionGrpc;
+import ubicacion.SolicitudCercana;
+import ubicacion.SolicitudesCercanas;
+import ubicacion.Ubicacion;
 
 public class ServicioUbicacionGrpcCliente {
 
