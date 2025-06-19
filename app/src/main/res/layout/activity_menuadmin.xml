@@ -75,7 +75,7 @@
             <ImageView
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@drawable/perfil"
+                android:src="@drawable/ic_perfil_defecto"
                 android:contentDescription="Perfil" />
         </LinearLayout>
 

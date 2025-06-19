@@ -25,6 +25,8 @@ import com.example.adoptmemovil.servicios.ClienteAPI;
 import com.example.adoptmemovil.modelo.Acceso;
 import com.example.adoptmemovil.modelo.Ubicacion;
 import com.example.adoptmemovil.modelo.Usuario;
+import com.example.adoptmemovil.utilidades.CallbackPermiso;
+import com.example.adoptmemovil.utilidades.PermisoHelper;
 import com.example.adoptmemovil.utilidades.Validador;
 import com.example.adoptmemovil.utilidades.Encriptador;
 import com.example.adoptmemovil.utilidades.HttpCallback;
@@ -42,8 +44,8 @@ import retrofit2.Call;
 
 
 public class RegistrarUsuarioActivity extends AppCompatActivity {
-    private static final int REQUEST_LOCATION_PERMISSIONS = 100;
-    private static final String TAG = "RegistrarUsuarioActivity";
+    private PermisoHelper permisoHelper;
+    private static final String TAG = "RegistrarUsuario";
     private Ubicacion ubicacionFinal;
     private EditText etNombre;
     private EditText etCorreo;
@@ -51,13 +53,22 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
     private EditText etConfirmPassword;
     private EditText etTelefono;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrarusuario);
 
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        permisoHelper = new PermisoHelper(this, new CallbackPermiso() {
+            @Override
+            public void onPermisoConcedido() {
+                obtenerUbicacionDisponible();
+            }
+
+            @Override
+            public void onPermisoDenegado() {
+                Toast.makeText(RegistrarUsuarioActivity.this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         etNombre = findViewById(R.id.etNombre);
         etCorreo = findViewById(R.id.etCorreo);
@@ -70,7 +81,11 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
 
         Button btnRegistrarUbicacion = findViewById(R.id.btnRegistrarUbicacion);
         btnRegistrarUbicacion.setOnClickListener(view -> {
-            verificarYPedirPermisoUbicacion();
+            if (PermisoHelper.tienePermisoUbicacion(this)) {
+                obtenerUbicacionDisponible();
+            } else {
+                permisoHelper.solicitarPermisoUbicacion();
+            }
         });
 
         Button btnRegistrar = findViewById(R.id.btnRegistrar);
@@ -145,46 +160,6 @@ public class RegistrarUsuarioActivity extends AppCompatActivity {
         etPassword.getText().clear();
         etConfirmPassword.getText().clear();
         etTelefono.getText().clear();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == REQUEST_LOCATION_PERMISSIONS) {
-            boolean fineGranted = false;
-            boolean coarseGranted = false;
-
-            for (int i = 0; i < permissions.length; i++) {
-                if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    fineGranted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
-                } else if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    coarseGranted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
-                }
-            }
-
-            if (fineGranted || coarseGranted) {
-                obtenerUbicacionDisponible();
-            } else {
-                Toast.makeText(this, "Permisos de ubicación denegados", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void verificarYPedirPermisoUbicacion() {
-        boolean fineLocationGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        boolean coarseLocationGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-
-        if (fineLocationGranted || coarseLocationGranted) {
-            obtenerUbicacionDisponible();
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                    },
-                    REQUEST_LOCATION_PERMISSIONS);
-        }
     }
 
     private void obtenerUbicacionDisponible() {
