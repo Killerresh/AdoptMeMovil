@@ -26,13 +26,11 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
-import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.adoptmemovil.R;
 import com.example.adoptmemovil.gRPC.ServicioUbicacionGrpcCliente;
 import com.example.adoptmemovil.modelo.Ubicacion;
 import com.example.adoptmemovil.utilidades.InterfazUsuarioUtils;
@@ -50,7 +48,7 @@ public class MapaFragment extends Fragment {
     private final Handler debounceHandler = new Handler(Looper.getMainLooper());
     private Runnable debounceRunnable;
 
-    private static final double ZOOM_VISIBLE = 16.0;
+    private static final double ZOOM_VISIBLE = 18.0;
     private static final GeoPoint POSICION_DEFECTO_MEXICO = new GeoPoint(23.6345, -102.5528);
 
     @Override
@@ -60,7 +58,10 @@ public class MapaFragment extends Fragment {
         configurarMapView(root);
         servicioGrpc = new ServicioUbicacionGrpcCliente();
 
-        Ubicacion ubicacionUsuario = UsuarioSingleton.getInstancia().getUsuarioActual().getUbicacion();
+        Ubicacion ubicacionUsuario = null;
+        if (UsuarioSingleton.getInstancia().estaLogueado()) {
+            ubicacionUsuario = UsuarioSingleton.getInstancia().getUsuarioActual().getUbicacion();
+        }
 
         if (ubicacionUsuario != null) {
             mostrarUbicacionUsuario(ubicacionUsuario);
@@ -141,7 +142,7 @@ public class MapaFragment extends Fragment {
         marcadorUsuario = marker;
     }
 
-    private void agregarMarcadorSolicitud(GeoPoint ubicacion) {
+    private void agregarMarcadorSolicitud(GeoPoint ubicacion, ubicacion.SolicitudCercana solicitudCercana) {
         Marker marker = new Marker(mapView);
         marker.setPosition(ubicacion);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
@@ -149,11 +150,25 @@ public class MapaFragment extends Fragment {
         Drawable icono = InterfazUsuarioUtils.escalarDrawable(requireContext(),
                 ContextCompat.getDrawable(requireContext(), R.drawable.ic_adopcion), 0.5f);
         marker.setIcon(icono);
-        marker.setTitle("Solicitud cercana");
-        marker.setSnippet("Toca para más info");
 
-        // Optional: set custom info window
-        marker.setInfoWindow(new MarkerInfoWindow(R.layout.bubble, mapView));
+        marker.setOnMarkerClickListener((Marker m, MapView mapView) -> {
+            com.example.adoptmemovil.modelo.Mascota mascota = new com.example.adoptmemovil.modelo.Mascota();
+
+            ubicacion.Mascota grpcMascota = solicitudCercana.getMascota();
+
+            mascota.setMascotaID(grpcMascota.getMascotaId());
+            mascota.setNombre(grpcMascota.getNombre());
+            mascota.setEspecie(grpcMascota.getEspecie());
+            mascota.setRaza(grpcMascota.getRaza());
+            mascota.setEdad(grpcMascota.getEdad());
+            mascota.setSexo(grpcMascota.getSexo());
+            mascota.setTamaño(grpcMascota.getTamano());
+            mascota.setDescripcion(grpcMascota.getDescripcion());
+
+            MascotaBottomSheet bottomSheet = MascotaBottomSheet.newInstance(mascota);
+            bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+            return true;
+        });
 
         mapView.getOverlays().add(marker);
         marcadoresSolicitudes.add(marker);
@@ -167,6 +182,11 @@ public class MapaFragment extends Fragment {
 
     private void obtenerUsuariosCercanos(double latitud, double longitud) {
         if (servicioGrpc == null) return;
+
+        if (!UsuarioSingleton.getInstancia().estaLogueado()) {
+            Log.w("MapaFragment", "Usuario no logueado, se cancela obtenerUsuariosCercanos");
+            return;
+        }
 
         ubicacion.Ubicacion request = ubicacion.Ubicacion.newBuilder()
                 .setUsuarioId(UsuarioSingleton.getInstancia().getUsuarioActual().getUsuarioID())
@@ -182,7 +202,7 @@ public class MapaFragment extends Fragment {
                     limpiarMarcadoresSolicitudes();
                     for (SolicitudCercana sc : respuesta.getResultadosList()) {
                         GeoPoint punto = new GeoPoint(sc.getLatitud(), sc.getLongitud());
-                        agregarMarcadorSolicitud(punto);
+                        agregarMarcadorSolicitud(punto, sc);
                     }
                     mapView.invalidate();
                 });

@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.bumptech.glide)
     annotationProcessor(libs.bumptech.glide.compiler)
+    implementation(libs.exo.core)
+    implementation(libs.exo.ui)
 }
 
 protobuf {

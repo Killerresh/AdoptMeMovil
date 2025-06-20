@@ -22,6 +22,7 @@ import com.example.adoptmemovil.utilidades.UsuarioSingleton;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,13 +47,14 @@ public class AdopcionesRegistradasFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        inputNombre = view.findViewById(R.id.input_nombre); // si usarás el filtro en el futuro
+        inputNombre = view.findViewById(R.id.input_nombre);
 
         recyclerAdopciones = view.findViewById(R.id.recyclerAdopciones);
         recyclerAdopciones.setLayoutManager(new LinearLayoutManager(getContext()));
 
         listaSolicitudes = new ArrayList<>();
         adapter = new AdopcionesRegistradasAdapter(getContext(), listaSolicitudes);
+        adapter.setOnEliminarSolicitudListener(solicitudId -> eliminarSolicitud(solicitudId));
         recyclerAdopciones.setAdapter(adapter);
 
         cargarSolicitudes();
@@ -82,4 +84,27 @@ public class AdopcionesRegistradasFragment extends Fragment {
             }
         });
     }
+
+    public void eliminarSolicitud(int solicitudId) {
+        SolicitudAdopcionServicios service = ClienteAPI.getRetrofit().create(SolicitudAdopcionServicios.class);
+        Call<ResponseBody> call = service.eliminarSolicitudAdopcion(solicitudId);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Solicitud eliminada", Toast.LENGTH_SHORT).show();
+                    cargarSolicitudes();
+                } else {
+                    Toast.makeText(getContext(), "Error al eliminar solicitud", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(getContext(), "Error en la conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }

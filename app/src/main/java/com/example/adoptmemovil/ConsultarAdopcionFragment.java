@@ -1,20 +1,35 @@
-package com.example.adoptmemovil.utilidades;
+package com.example.adoptmemovil;
 
+import static com.example.adoptmemovil.utilidades.InterfazUsuarioUtils.cargarFotoMascota;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
-import com.example.adoptmemovil.R;
 import com.example.adoptmemovil.modelo.Mascota;
+import com.example.adoptmemovil.servicios.ClienteAPI;
+import com.example.adoptmemovil.servicios.MascotaServicios;
+import com.example.adoptmemovil.utilidades.FotoMascotaCache;
+import com.example.adoptmemovil.utilidades.UsuarioSingleton;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ConsultarAdopcionFragment extends Fragment {
 
@@ -29,6 +44,7 @@ public class ConsultarAdopcionFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_consultar_adopcion, container, false);
+
     }
 
     @Override
@@ -45,9 +61,18 @@ public class ConsultarAdopcionFragment extends Fragment {
         tvDescripcion = view.findViewById(R.id.tvDescripcion);
         imgFotoMascota = view.findViewById(R.id.imgFotoMascota);
         btnVerVideo = view.findViewById(R.id.btnVerVideo);
+        Button btnSolicitarAdopcion = view.findViewById(R.id.btnSolicitarAdopcion);
 
         if (getArguments() != null) {
-            mascota = (Mascota) getArguments().getSerializable("mascota");
+            Bundle args = getArguments();
+            mascota = args.getParcelable("mascota");
+            boolean desdeBottomSheet = args != null && args.getBoolean("desdeBottomSheet", false);
+
+            if (desdeBottomSheet) {
+                btnSolicitarAdopcion.setVisibility(View.VISIBLE);
+            } else {
+                btnSolicitarAdopcion.setVisibility(View.GONE);
+            }
 
             if (mascota != null) {
                 tvNombre.setText("Nombre: " + mascota.getNombre());
@@ -57,17 +82,23 @@ public class ConsultarAdopcionFragment extends Fragment {
                 tvSexo.setText("Sexo: " + mascota.getSexo());
                 tvEstatura.setText("Estatura: " + mascota.getTamaño());
                 tvDescripcion.setText("Descripción: " + mascota.getDescripcion());
-
-                Glide.with(requireContext())
-                        .load(mascota.getFotoUrl())
-                        .placeholder(R.drawable.defaultpet)
-                        .error(R.drawable.defaultpet)
-                        .into(imgFotoMascota);
+                cargarFotoMascota(requireContext(),UsuarioSingleton.getInstancia().getToken(), mascota.getMascotaID(), imgFotoMascota);
             }
         }
 
         btnVerVideo.setOnClickListener(v -> {
-            // Por ahora sin funcionalidad
+            Bundle bundle = new Bundle();
+            bundle.putInt("mascotaId", mascota.getMascotaID());
+
+            VideoMascotaFragment fragment = new VideoMascotaFragment();
+            fragment.setArguments(bundle);
+
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+
         });
     }
 }

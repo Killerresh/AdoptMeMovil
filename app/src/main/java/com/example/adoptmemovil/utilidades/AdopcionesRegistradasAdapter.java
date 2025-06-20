@@ -1,5 +1,7 @@
 package com.example.adoptmemovil.utilidades;
 
+import static com.example.adoptmemovil.utilidades.InterfazUsuarioUtils.cargarFotoMascota;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,27 +11,46 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
+import com.example.adoptmemovil.ConsultarAdopcionFragment;
 import com.example.adoptmemovil.R;
 import com.example.adoptmemovil.modelo.Mascota;
 import com.example.adoptmemovil.modelo.SolicitudAdopcion;
+import com.example.adoptmemovil.servicios.ClienteAPI;
+import com.example.adoptmemovil.servicios.SolicitudAdopcionServicios;
 
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<AdopcionesRegistradasAdapter.ViewHolder> {
 
     private Context context;
     private List<SolicitudAdopcion> listaSolicitudes;
+    private OnEliminarSolicitudListener eliminarListener;
+
 
     public AdopcionesRegistradasAdapter(Context context, List<SolicitudAdopcion> listaSolicitudes) {
         this.context = context;
         this.listaSolicitudes = listaSolicitudes;
     }
+
+    public interface OnEliminarSolicitudListener {
+        void onEliminarSolicitud(int solicitudId);
+    }
+
+    public void setOnEliminarSolicitudListener(OnEliminarSolicitudListener listener) {
+        this.eliminarListener = listener;
+    }
+
 
     @NonNull
     @Override
@@ -40,8 +61,8 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
 
     @Override
     public void onBindViewHolder(@NonNull AdopcionesRegistradasAdapter.ViewHolder holder, int position) {
-        SolicitudAdopcion solicitudAdopcion = listaSolicitudes.get(position);
-        Mascota mascota = solicitudAdopcion.getMascota();
+        SolicitudAdopcion solicitud = listaSolicitudes.get(position);
+        Mascota mascota = solicitud.getMascota();
 
         if (mascota != null) {
             holder.txtNombreMascota.setText(mascota.getNombre());
@@ -52,7 +73,7 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
                     mascota.getEdad() != null ? mascota.getEdad() : "N/D");
             holder.txtEspecieRazaEdad.setText(especieRazaEdad);
 
-            if (solicitudAdopcion.isEstado()) {
+            if (solicitud.isEstado()) {
                 holder.txtEstadoSolicitud.setText("Estado: Adoptado");
                 holder.txtEstadoSolicitud.setTextColor(Color.parseColor("#BB0000"));
             } else {
@@ -60,15 +81,7 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
                 holder.txtEstadoSolicitud.setTextColor(Color.parseColor("#007700"));
             }
 
-            if (mascota.getFotoUrl() != null && !mascota.getFotoUrl().isEmpty()) {
-                Glide.with(context)
-                        .load(mascota.getFotoUrl())
-                        .placeholder(R.drawable.defaultpet)
-                        .error(R.drawable.defaultpet)
-                        .into(holder.imgFotoMascota);
-            } else {
-                holder.imgFotoMascota.setImageResource(R.drawable.defaultpet);
-            }
+            cargarFotoMascota(context, UsuarioSingleton.getInstancia().getToken(), mascota.getMascotaID(), holder.imgFotoMascota);
         } else {
             holder.txtNombreMascota.setText("N/D");
             holder.txtEspecieRazaEdad.setText("N/D · N/D · N/D");
@@ -76,30 +89,19 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
             holder.imgFotoMascota.setImageResource(R.drawable.defaultpet);
         }
 
-        // Eliminar (pendiente)
         holder.btnEliminar.setOnClickListener(v -> {
-            // TODO: lógica para eliminar
-        });
-
-        // Botón "Solicitudes pendientes"
-        holder.btnSolicitudesPendientes.setOnClickListener(v -> {
-            if (context instanceof FragmentActivity) {
-                FragmentActivity activity = (FragmentActivity) context;
-
-                int adopcionID = solicitudAdopcion.getSolicitudAdopcionID(); // Asegúrate de tener el getter correcto
-
-                // Llama al fragmento y le pasa la adopcionID
-                SolicitudesPendientesDialogFragment dialog = SolicitudesPendientesDialogFragment.newInstance(adopcionID);
-                dialog.show(activity.getSupportFragmentManager(), "SolicitudesPendientesDialog");
+            if (eliminarListener != null) {
+                eliminarListener.onEliminarSolicitud(solicitud.getSolicitudAdopcionID());
             }
         });
 
-        // Botón "Detalles de mascota"
+        holder.btnSolicitudesPendientes.setOnClickListener(v -> { /* TODO */ });
+
         holder.btnDetallesMascota.setOnClickListener(v -> {
             if (context instanceof FragmentActivity) {
                 FragmentActivity activity = (FragmentActivity) context;
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("mascota", solicitudAdopcion.getMascota()); // Mascota debe ser Serializable
+                bundle.putParcelable("mascota", solicitud.getMascota());
 
                 ConsultarAdopcionFragment fragment = new ConsultarAdopcionFragment();
                 fragment.setArguments(bundle);
@@ -111,6 +113,7 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
                         .commit();
             }
         });
+
     }
 
     @Override
