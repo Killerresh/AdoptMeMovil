@@ -84,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:text="Solicitudes pendientes"
                     android:textAllCaps="false"
-                    android:background="#FFF59D"
+                    android:background="#90CAF9"
                     android:layout_marginBottom="4dp" />
 
                 <Button

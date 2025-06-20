@@ -34,4 +34,8 @@ public class ClienteAPI {
     public static SolicitudAdopcionServicios getSolicitudAdopcionServicios() {
         return getRetrofit().create(SolicitudAdopcionServicios.class);
     }
+
+    public static SolicitudServicios getSolicitudServicios() {
+        return getRetrofit().create(SolicitudServicios.class);
+    }
 }

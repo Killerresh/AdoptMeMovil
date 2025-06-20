@@ -40,67 +40,77 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
 
     @Override
     public void onBindViewHolder(@NonNull AdopcionesRegistradasAdapter.ViewHolder holder, int position) {
-        SolicitudAdopcion solicitud = listaSolicitudes.get(position);
-        Mascota mascota = solicitud.getMascota();
+        SolicitudAdopcion solicitudAdopcion = listaSolicitudes.get(position);
+        Mascota mascota = solicitudAdopcion.getMascota();
 
         if (mascota != null) {
             holder.txtNombreMascota.setText(mascota.getNombre());
 
-            // Concatenar Especie · Raza · Edad
             String especieRazaEdad = String.format("%s · %s · %s",
                     mascota.getEspecie() != null ? mascota.getEspecie() : "N/D",
                     mascota.getRaza() != null ? mascota.getRaza() : "N/D",
                     mascota.getEdad() != null ? mascota.getEdad() : "N/D");
             holder.txtEspecieRazaEdad.setText(especieRazaEdad);
 
-            // Estado: false = Disponible, true = Adoptado
-            if (solicitud.isEstado()) {
+            if (solicitudAdopcion.isEstado()) {
                 holder.txtEstadoSolicitud.setText("Estado: Adoptado");
-                holder.txtEstadoSolicitud.setTextColor(Color.parseColor("#BB0000")); // verde
+                holder.txtEstadoSolicitud.setTextColor(Color.parseColor("#BB0000"));
             } else {
                 holder.txtEstadoSolicitud.setText("Estado: Disponible");
                 holder.txtEstadoSolicitud.setTextColor(Color.parseColor("#007700"));
             }
 
-            // Cargar la foto con Glide, ajustar si el campo es diferente
             if (mascota.getFotoUrl() != null && !mascota.getFotoUrl().isEmpty()) {
                 Glide.with(context)
                         .load(mascota.getFotoUrl())
-                        .placeholder(R.drawable.defaultpet)  // pon tu imagen placeholder aquí
-                        .error(R.drawable.defaultpet)        // o la imagen de error
+                        .placeholder(R.drawable.defaultpet)
+                        .error(R.drawable.defaultpet)
                         .into(holder.imgFotoMascota);
             } else {
                 holder.imgFotoMascota.setImageResource(R.drawable.defaultpet);
             }
         } else {
-            // Si no hay mascota, poner valores por defecto
             holder.txtNombreMascota.setText("N/D");
             holder.txtEspecieRazaEdad.setText("N/D · N/D · N/D");
             holder.txtEstadoSolicitud.setText("Estado: N/D");
             holder.imgFotoMascota.setImageResource(R.drawable.defaultpet);
         }
 
-        // Botones sin funcionalidad por ahora
-        holder.btnEliminar.setOnClickListener(v -> { /* TODO */ });
-        holder.btnSolicitudesPendientes.setOnClickListener(v -> { /* TODO */ });
+        // Eliminar (pendiente)
+        holder.btnEliminar.setOnClickListener(v -> {
+            // TODO: lógica para eliminar
+        });
+
+        // Botón "Solicitudes pendientes"
+        holder.btnSolicitudesPendientes.setOnClickListener(v -> {
+            if (context instanceof FragmentActivity) {
+                FragmentActivity activity = (FragmentActivity) context;
+
+                int adopcionID = solicitudAdopcion.getSolicitudAdopcionID(); // Asegúrate de tener el getter correcto
+
+                // Llama al fragmento y le pasa la adopcionID
+                SolicitudesPendientesDialogFragment dialog = SolicitudesPendientesDialogFragment.newInstance(adopcionID);
+                dialog.show(activity.getSupportFragmentManager(), "SolicitudesPendientesDialog");
+            }
+        });
+
+        // Botón "Detalles de mascota"
         holder.btnDetallesMascota.setOnClickListener(v -> {
-            // Para abrir el fragmento con la info de la mascota
             if (context instanceof FragmentActivity) {
                 FragmentActivity activity = (FragmentActivity) context;
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("mascota", solicitud.getMascota()); // Mascota debe implementar Serializable o Parcelable
+                bundle.putSerializable("mascota", solicitudAdopcion.getMascota()); // Mascota debe ser Serializable
 
                 ConsultarAdopcionFragment fragment = new ConsultarAdopcionFragment();
                 fragment.setArguments(bundle);
 
                 activity.getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragment_container, fragment) // Ajusta el container id según tu layout
+                        .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null)
                         .commit();
             }
         });
-
     }
 
     @Override

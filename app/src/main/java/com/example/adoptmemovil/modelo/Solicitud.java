@@ -4,13 +4,16 @@ import com.google.gson.annotations.SerializedName;
 
 public class Solicitud {
     @SerializedName("SolicitudID")
-    public int solicitudID;
+    private int solicitudID;
 
     @SerializedName("AdoptanteID")
-    public int adoptanteID;
+    private int adoptanteID;
 
     @SerializedName("AdopcionID")
-    public int adopcionID;
+    private int adopcionID;
+
+    @SerializedName("NombreAdoptante")
+    private String nombreUsuarioAdoptante;  // Nuevo campo
 
     // Getters y Setters
 
@@ -36,5 +39,13 @@ public class Solicitud {
 
     public void setAdopcionID(int adopcionID) {
         this.adopcionID = adopcionID;
+    }
+
+    public String getNombreUsuarioAdoptante() {
+        return nombreUsuarioAdoptante;
+    }
+
+    public void setNombreUsuarioAdoptante(String nombreUsuarioAdoptante) {
+        this.nombreUsuarioAdoptante = nombreUsuarioAdoptante;
     }
 }
