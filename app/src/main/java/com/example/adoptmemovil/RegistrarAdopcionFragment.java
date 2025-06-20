@@ -26,8 +26,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.adoptmemovil.MapaRegistroActivity;
-import com.example.adoptmemovil.R;
+import com.example.adoptmemovil.gRPC.ServicioMultimediaGrpcCliente;
 import com.example.adoptmemovil.modelo.Mascota;
 import com.example.adoptmemovil.modelo.SolicitudAdopcion;
 import com.example.adoptmemovil.modelo.Ubicacion;
@@ -40,6 +39,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import io.grpc.stub.StreamObserver;
+import multimedia.ChunkArchivo;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -246,12 +247,11 @@ public class RegistrarAdopcionFragment extends Fragment {
         mascota.setDescripcion(descripcion);
 
         SolicitudAdopcion solicitud = new SolicitudAdopcion();
-        solicitud.setPublicadorID(1);
-        solicitud.setAdoptanteID(2);
+        solicitud.setPublicadorID(1); // reemplaza con datos reales si es necesario
+        solicitud.setAdoptanteID(2);  // reemplaza con datos reales si es necesario
         solicitud.setEstado(false);
         solicitud.setMascota(mascota);
         solicitud.setUbicacion(ubicacionFinal);
-        // Video seleccionado (opcional) aún no se usa, pero puedes anexarlo aquí si decides enviarlo.
 
         SolicitudAdopcionServicios service = ClienteAPI.getRetrofit().create(SolicitudAdopcionServicios.class);
         Call<ResponseBody> call = service.registrarSolicitudAdopcion(solicitud);
@@ -259,18 +259,25 @@ public class RegistrarAdopcionFragment extends Fragment {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Registro exitoso", Toast.LENGTH_SHORT).show();
-                    MapaFragment mapaFragment = new MapaFragment();
+                    try {
+                        // Leemos el cuerpo como string para ver qué está regresando el backend
+                        String respuestaTexto = response.body().string();
+                        Log.e("RESPUESTA_BACKEND", "Respuesta exitosa: " + respuestaTexto);
 
-                    requireActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment_container, mapaFragment)
-                            .commit();
+                        Toast.makeText(getContext(), "Registro exitoso", Toast.LENGTH_SHORT).show();
+
+                        // Aquí puedes agregar lógica condicional si detectas el ID
+                        // int mascotaID = Integer.parseInt(respuestaTexto); // <- solo si es un número plano
+                        // subirFotoMascota(mascotaID);
+
+                    } catch (Exception e) {
+                        Log.e("RESPUESTA_BACKEND", "Error al leer respuesta: " + e.getMessage());
+                    }
 
                 } else {
                     try {
                         String error = response.errorBody().string();
-                        Log.e("Error 400", error);
+                        Log.e("RESPUESTA_BACKEND", "Error en el registro: " + error);
                         Toast.makeText(getContext(), "Error en el registro: " + error, Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -278,11 +285,24 @@ public class RegistrarAdopcionFragment extends Fragment {
                 }
             }
 
+
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(getContext(), "Error en la conexión: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
-}
 
+    private void subirFotoMascota(int mascotaID) {
+        ServicioMultimediaGrpcCliente cliente = new ServicioMultimediaGrpcCliente();
+        cliente.subirArchivoAsync(
+                requireContext(),
+                imagenSeleccionada,
+                mascotaID,
+                new String[]{".jpg", ".jpeg", ".png"},
+                responseObserver -> cliente.getStub().subirFotoMascota(responseObserver),
+                null,
+                imageViewPreview
+        );
+    }
+}
