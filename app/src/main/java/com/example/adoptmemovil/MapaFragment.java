@@ -18,9 +18,9 @@ import com.example.adoptmemovil.modelo.Ubicacion;
 import com.example.adoptmemovil.utilidades.InterfazUsuarioUtils;
 import com.example.adoptmemovil.utilidades.UsuarioSingleton;
 
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.DelayedMapListener;
-import org.osmdroid.events.MapEvent;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
@@ -33,18 +33,13 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.adoptmemovil.R;
 import com.example.adoptmemovil.gRPC.ServicioUbicacionGrpcCliente;
-import com.example.adoptmemovil.modelo.Ubicacion;
-import com.example.adoptmemovil.utilidades.InterfazUsuarioUtils;
-import com.example.adoptmemovil.utilidades.UsuarioSingleton;
 
 import ubicacion.SolicitudCercana;
 import ubicacion.SolicitudesCercanas;
@@ -52,7 +47,7 @@ import ubicacion.SolicitudesCercanas;
 public class MapaFragment extends Fragment {
 
     private MapView mapView;
-    private List<Marker> marcadoresSolicitudes = new ArrayList<>();
+    private final List<Marker> marcadoresSolicitudes = new ArrayList<>();
     private Marker marcadorUsuario = null;
     private ServicioUbicacionGrpcCliente servicioGrpc;
 
@@ -196,18 +191,12 @@ public class MapaFragment extends Fragment {
                 Throwable causa = ex.getCause();
                 if (causa instanceof io.grpc.StatusRuntimeException) {
                     Log.e("gRPC", "Error gRPC: " + ((io.grpc.StatusRuntimeException) causa).getStatus());
-                    Toast.makeText(requireContext(),""+((io.grpc.StatusRuntimeException) causa).getStatus(), Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e("gRPC", "Error inesperado: ", causa);
-                    Toast.makeText(requireContext(),causa +"", Toast.LENGTH_SHORT).show();
                 }
             } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
                 Log.e("gRPC", "Interrumpido", ex);
-                Toast.makeText(requireContext(),""+ex, Toast.LENGTH_SHORT).show();
             } catch (Exception ex) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "Error: " + ex.getMessage(), Toast.LENGTH_SHORT).show());
                 Log.e("gRPC", "Error obteniendo solicitudes", ex);
             }
         }, servicioGrpc.getExecutor());
@@ -232,7 +221,7 @@ public class MapaFragment extends Fragment {
             try {
                 servicioGrpc.shutdown();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Log.e("gRPC", "Error obteniendo solicitudes", e);
             }
         }
     }
