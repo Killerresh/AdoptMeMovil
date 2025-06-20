@@ -98,5 +98,14 @@
             android:text="Ver video"
             android:background="#10CAF9"
             android:layout_marginTop="20dp" />
+
+        <Button
+            android:id="@+id/btnSolicitarAdopcion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Solicitar adopción"
+            android:background="#4CAF50"
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

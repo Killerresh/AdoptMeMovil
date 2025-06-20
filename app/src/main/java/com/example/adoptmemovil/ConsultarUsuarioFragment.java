@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.VISIBLE;
 
 import static com.example.adoptmemovil.utilidades.Constantes.TIPO_SUBIDA_FOTO_USUARIO;
+import static com.example.adoptmemovil.utilidades.InterfazUsuarioUtils.cargarFotoPerfil;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -119,6 +120,10 @@ public class ConsultarUsuarioFragment extends Fragment {
         btnEditarFoto = view.findViewById(R.id.btnEditarFoto);
 
         imageViewPreview = view.findViewById(R.id.imageViewPreview);
+
+        imageViewPreview.post(() -> {
+            cargarFotoPerfil(requireContext(), UsuarioSingleton.getInstancia().getToken(), imageViewPreview);
+        });
 
         Usuario usuarioActual = UsuarioSingleton.getInstancia().getUsuarioActual();
         String nombre = usuarioActual.getNombre();
@@ -519,47 +524,5 @@ public class ConsultarUsuarioFragment extends Fragment {
         intent.setType("image/*");
         selectorFotoLauncher.launch(intent);
     }
-
-    public static void cargarFotoUsuario(Context context, String token, ImageView imageView) {
-        UsuarioServicios servicio = ClienteAPI.getRetrofit().create(UsuarioServicios.class);
-        Call<ResponseBody> llamada = servicio.obtenerFotoPerfil("Bearer " + token);
-
-        llamada.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    new Thread(() -> {
-                        try {
-                            Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                            UsuarioSingleton.getInstancia().getUsuarioActual().setFotoPerfil(bitmap);
-
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                imageView.setImageBitmap(bitmap);
-
-                                if (context instanceof AppCompatActivity) {
-                                    ImageView imageViewActivity = ((AppCompatActivity) context).findViewById(R.id.imageViewPreview);
-                                    if (imageViewActivity != null) {
-                                        imageViewActivity.setImageBitmap(bitmap);
-                                    }
-                                }
-                            });
-                        } catch (Exception e) {
-                            Log.e("ConsultarUsuario", "No se pudo obtener la foto. Error: " + e);
-                        }
-                    }).start();
-                } else {
-                    Toast.makeText(context, "No se pudo obtener la foto", Toast.LENGTH_SHORT).show();
-                    Log.e("ConsultarUsuario", "No se pudo obtener la foto. Código: " + response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(context, "No se pudo obtener la foto", Toast.LENGTH_SHORT).show();
-                Log.e("ConsultarUsuario", "Error al obtener la foto: " + t.getMessage());
-            }
-        });
-    }
-
 }
 

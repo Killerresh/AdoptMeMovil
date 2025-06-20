@@ -35,7 +35,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Botón de Iniciar Sesión
+        if (UsuarioSingleton.getInstancia().estaLogueado()) {
+            startActivity(new Intent(this, MenuActivity.class));
+            finish();
+        }
+
         Button btnLogin = findViewById(R.id.btnLogin);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
