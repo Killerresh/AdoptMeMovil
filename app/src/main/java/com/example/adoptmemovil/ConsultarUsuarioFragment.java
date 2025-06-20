@@ -3,6 +3,8 @@ package com.example.adoptmemovil;
 import static android.app.Activity.RESULT_OK;
 import static android.view.View.VISIBLE;
 
+import static com.example.adoptmemovil.utilidades.Constantes.TIPO_SUBIDA_FOTO_USUARIO;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -504,6 +506,7 @@ public class ConsultarUsuarioFragment extends Fragment {
                             uri,
                             UsuarioSingleton.getInstancia().getUsuarioActual().getUsuarioID(),
                             new String[]{".jpg", ".jpeg", ".png"},
+                            TIPO_SUBIDA_FOTO_USUARIO,
                             responseObserver -> cliente.getStub().subirFotoUsuario(responseObserver),
                             UsuarioSingleton.getInstancia().getToken(),
                             imageViewPreview

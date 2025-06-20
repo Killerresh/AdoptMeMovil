@@ -15,10 +15,8 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        // Cargar fragmento inicial
         loadFragment(new MapaFragment());
 
-        // Configurar botones
         findViewById(R.id.btn_home).setOnClickListener(v -> loadFragment(new MapaFragment()));
         findViewById(R.id.btn_registrarMascota).setOnClickListener(v -> loadFragment(new com.example.adoptmemovil.RegistrarAdopcionFragment()));
         findViewById(R.id.btn_mascotas).setOnClickListener(v -> loadFragment(new AdopcionesRegistradasFragment()));

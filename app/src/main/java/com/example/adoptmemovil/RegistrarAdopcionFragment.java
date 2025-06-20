@@ -1,5 +1,8 @@
 package com.example.adoptmemovil;
 
+import static com.example.adoptmemovil.utilidades.Constantes.TIPO_SUBIDA_FOTO_MASCOTA;
+import static com.example.adoptmemovil.utilidades.Constantes.TIPO_SUBIDA_VIDEO_MASCOTA;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,8 +38,10 @@ import com.example.adoptmemovil.gRPC.ServicioMultimediaGrpcCliente;
 import com.example.adoptmemovil.modelo.Mascota;
 import com.example.adoptmemovil.modelo.SolicitudAdopcion;
 import com.example.adoptmemovil.modelo.Ubicacion;
+import com.example.adoptmemovil.modelo.response.RegistroMascotaResponse;
 import com.example.adoptmemovil.servicios.ClienteAPI;
 import com.example.adoptmemovil.servicios.SolicitudAdopcionServicios;
+import com.example.adoptmemovil.utilidades.UsuarioSingleton;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -72,7 +77,6 @@ public class RegistrarAdopcionFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registrar_adopcion, container, false);
 
-        // Inputs
         inputNombre = view.findViewById(R.id.input_nombre);
         inputEspecie = view.findViewById(R.id.input_especie);
         inputRaza = view.findViewById(R.id.input_raza);
@@ -81,7 +85,6 @@ public class RegistrarAdopcionFragment extends Fragment {
         inputTamano = view.findViewById(R.id.input_tamano);
         inputDescripcion = view.findViewById(R.id.input_descripcion);
 
-        // Botones y vistas
         btnElegirUbicacion = view.findViewById(R.id.btn_elegir_ubicacion);
         btnSubirFoto = view.findViewById(R.id.btn_subir_foto);
         btnSubirVideo = view.findViewById(R.id.btn_subir_video);
@@ -89,13 +92,11 @@ public class RegistrarAdopcionFragment extends Fragment {
         imageViewPreview = view.findViewById(R.id.imageViewPreview);
         txtNombreVideo = view.findViewById(R.id.txt_nombre_video);
 
-        // Spinner Sexo
         String[] opcionesSexo = {"Macho", "Hembra"};
         ArrayAdapter<String> adapterSexo = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, opcionesSexo);
         adapterSexo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSexo.setAdapter(adapterSexo);
 
-        // Lanzadores
         launcherGaleria = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -132,7 +133,6 @@ public class RegistrarAdopcionFragment extends Fragment {
                     }
                 });
 
-        // Listeners
         btnSubirFoto.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
@@ -149,7 +149,6 @@ public class RegistrarAdopcionFragment extends Fragment {
 
         btnRegistrar.setOnClickListener(v -> registrarAdopcion());
 
-        // Configurar diálogo para edad
         inputEdad.setOnClickListener(v -> mostrarDialogoEdad());
 
         return view;
@@ -167,7 +166,6 @@ public class RegistrarAdopcionFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Selecciona la edad");
 
-        // Crear layout programáticamente con dos NumberPickers
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_edad_picker, null);
         NumberPicker npAnos = dialogView.findViewById(R.id.numberPickerAnos);
         NumberPicker npMeses = dialogView.findViewById(R.id.numberPickerMeses);
@@ -292,7 +290,6 @@ public class RegistrarAdopcionFragment extends Fragment {
             return;
         }
 
-        // Formatear tamaño con "cm"
         String tamanoConUnidad = tamano + " cm";
 
         Mascota mascota = new Mascota();
@@ -305,33 +302,36 @@ public class RegistrarAdopcionFragment extends Fragment {
         mascota.setDescripcion(descripcion);
 
         SolicitudAdopcion solicitud = new SolicitudAdopcion();
-        solicitud.setPublicadorID(1); // reemplaza con datos reales si es necesario
-        solicitud.setAdoptanteID(2);  // reemplaza con datos reales si es necesario
+        solicitud.setPublicadorID(UsuarioSingleton.getInstancia().getUsuarioActual().getUsuarioID());
         solicitud.setEstado(false);
         solicitud.setMascota(mascota);
         solicitud.setUbicacion(ubicacionFinal);
 
         SolicitudAdopcionServicios service = ClienteAPI.getRetrofit().create(SolicitudAdopcionServicios.class);
-        Call<ResponseBody> call = service.registrarSolicitudAdopcion(solicitud);
-        call.enqueue(new Callback<ResponseBody>() {
+        Call<RegistroMascotaResponse> call = service.registrarSolicitudAdopcion(solicitud);
+        call.enqueue(new Callback<RegistroMascotaResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<RegistroMascotaResponse> call, Response<RegistroMascotaResponse> response) {
                 if (response.isSuccessful()) {
                     try {
-                        String respuestaTexto = response.body().string();
+                        if (response.isSuccessful() && response.body() != null) {
+                            int mascotaId = response.body().getMascotaID();
+                            subirFotoMascota(mascotaId);
+
+                            if (videoSeleccionado != null) {
+                                subirVideoMascota(mascotaId);
+                            }
+                        }
+
                         MapaFragment fragmentB = new MapaFragment();
 
                         requireActivity().getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.fragment_container, fragmentB)
-                                .commit(); // <-- sin addToBackStack
+                                .commit();
 
 
                         Toast.makeText(getContext(), "Registro exitoso", Toast.LENGTH_SHORT).show();
-
-                        // Aquí podrías llamar a subirFotoMascota si recibes el ID
-                        // int mascotaID = Integer.parseInt(respuestaTexto);
-                        // subirFotoMascota(mascotaID);
 
                     } catch (Exception e) {
                         Log.e("RESPUESTA_BACKEND", "Error al leer respuesta: " + e.getMessage());
@@ -349,7 +349,7 @@ public class RegistrarAdopcionFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<RegistroMascotaResponse> call, Throwable t) {
                 Toast.makeText(getContext(), "Error en la conexión: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
@@ -362,9 +362,24 @@ public class RegistrarAdopcionFragment extends Fragment {
                 imagenSeleccionada,
                 mascotaID,
                 new String[]{".jpg", ".jpeg", ".png"},
+                TIPO_SUBIDA_FOTO_MASCOTA,
                 responseObserver -> cliente.getStub().subirFotoMascota(responseObserver),
                 null,
-                imageViewPreview
+                null
+        );
+    }
+
+    private void subirVideoMascota(int mascotaID) {
+        ServicioMultimediaGrpcCliente cliente = new ServicioMultimediaGrpcCliente();
+        cliente.subirArchivoAsync(
+                requireContext(),
+                videoSeleccionado,
+                mascotaID,
+                new String[]{".mp4"},
+                TIPO_SUBIDA_VIDEO_MASCOTA,
+                responseObserver -> cliente.getStub().subirVideoMascota(responseObserver),
+                null,
+                null
         );
     }
 }

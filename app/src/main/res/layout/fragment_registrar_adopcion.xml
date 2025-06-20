@@ -28,7 +28,6 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- Campos de entrada -->
         <EditText
             android:id="@+id/input_nombre"
             android:layout_width="match_parent"
@@ -59,7 +58,6 @@
             android:singleLine="true"
             android:layout_marginBottom="10dp" />
 
-        <!-- Edad: un EditText no editable que abre diálogo -->
         <EditText
             android:id="@+id/input_edad"
             android:layout_width="match_parent"
@@ -72,7 +70,6 @@
             android:layout_marginBottom="10dp"
             android:cursorVisible="false" />
 
-        <!-- Sexo cambiado a Spinner -->
         <Spinner
             android:id="@+id/spinnerSexo"
             android:layout_width="match_parent"
@@ -80,7 +77,6 @@
             android:layout_marginBottom="10dp"
             android:background="@drawable/edittext_background" />
 
-        <!-- Tamaño: EditText solo números -->
         <EditText
             android:id="@+id/input_tamano"
             android:layout_width="match_parent"
@@ -103,7 +99,6 @@
             android:gravity="top"
             android:layout_marginBottom="10dp" />
 
-        <!-- Botones y vista previa -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -170,7 +165,6 @@
                 android:contentDescription="Vista previa de la imagen" />
         </LinearLayout>
 
-        <!-- Botón Registrar (se mantiene al final, alineado a la derecha) -->
         <Button
             android:id="@+id/btn_registrar"
             android:layout_width="wrap_content"

@@ -1,10 +1,17 @@
 package com.example.adoptmemovil.gRPC;
 
+import static com.example.adoptmemovil.utilidades.Constantes.DIRECCION_IP;
+
+import com.example.adoptmemovil.utilidades.HeaderClientInterceptor;
+import com.example.adoptmemovil.utilidades.UsuarioSingleton;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import io.grpc.Channel;
+import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -20,13 +27,20 @@ public class ServicioUbicacionGrpcCliente {
     private final ExecutorService executor;
 
     public ServicioUbicacionGrpcCliente() {
-        channel = ManagedChannelBuilder
-                .forAddress("192.168.137.1", 50051)
+        ManagedChannel baseChannel = ManagedChannelBuilder
+                .forAddress(DIRECCION_IP, 50051)
                 .usePlaintext()
                 .build();
 
-        stub = ServicioUbicacionGrpc.newFutureStub(channel);
-        executor = Executors.newSingleThreadExecutor();
+        String token = UsuarioSingleton.getInstancia().getToken();
+
+        HeaderClientInterceptor interceptor = new HeaderClientInterceptor(token);
+        Channel interceptedChannel = ClientInterceptors.intercept(baseChannel, interceptor);
+
+        this.channel = baseChannel;
+        this.stub = ServicioUbicacionGrpc.newFutureStub(interceptedChannel);
+
+        this.executor = Executors.newSingleThreadExecutor();
     }
 
     public void obtenerSolicitudesCercanas(int usuarioId, double latitud, double longitud) {

@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.grpc.protobuf.lite)
     implementation(libs.javax.annotation)
     implementation(libs.protobuf.javalite)
+    implementation(libs.osmdroid.core)
+    implementation(libs.osmdroid.wms)
 }
 
 protobuf {

@@ -1,6 +1,8 @@
 package com.example.adoptmemovil.gRPC;
 
 import static com.example.adoptmemovil.ConsultarUsuarioFragment.cargarFotoUsuario;
+import static com.example.adoptmemovil.utilidades.Constantes.DIRECCION_IP;
+import static com.example.adoptmemovil.utilidades.Constantes.TIPO_SUBIDA_FOTO_USUARIO;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -40,7 +42,7 @@ public class ServicioMultimediaGrpcCliente {
     private final ServicioMultimediaGrpc.ServicioMultimediaStub stub;
     public ServicioMultimediaGrpcCliente() {
         ManagedChannel canal = ManagedChannelBuilder
-                .forAddress("192.168.137.1", 50051)
+                .forAddress(DIRECCION_IP, 50051)
                 .usePlaintext()
                 .build();
 
@@ -57,6 +59,7 @@ public class ServicioMultimediaGrpcCliente {
             Uri uri,
             int idReferencia,
             String[] extensionesPermitidas,
+            String tipoSubida,
             MetodoSubida metodoSubida,
             String token,
             ImageView imageView
@@ -79,7 +82,8 @@ public class ServicioMultimediaGrpcCliente {
                         new StreamObserver<RespuestaGeneral>() {
                             @Override
                             public void onNext(RespuestaGeneral respuesta) {
-                                mostrarDialogo(context, "Servidor", respuesta.getMensaje());
+                                Log.d("gRPC", respuesta.getMensaje());
+
                             }
 
                             @Override
@@ -91,16 +95,19 @@ public class ServicioMultimediaGrpcCliente {
                                 } else {
                                     mensajeError = t.toString();
                                 }
-                                mostrarDialogoError(context, "Error al subir el archivo");
+                                mostrarToast(context, "Error al subir archivo");
                             }
 
                             @Override
                             public void onCompleted() {
                                 Log.d("gRPC", "Transferencia completada");
 
-                                new Handler(Looper.getMainLooper()).post(() -> {
-                                    cargarFotoUsuario(context, token, imageView);
-                                });
+                                if (TIPO_SUBIDA_FOTO_USUARIO.equals(tipoSubida)) {
+                                    new Handler(Looper.getMainLooper()).post(() -> {
+                                        cargarFotoUsuario(context, token, imageView);
+                                    });
+                                }
+                                mostrarToast(context,"Archivos subidos correctamente");
                             }
                         };
 
@@ -154,19 +161,5 @@ public class ServicioMultimediaGrpcCliente {
     private void mostrarToast(Context context, String mensaje) {
         new Handler(Looper.getMainLooper()).post(() ->
                 Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show());
-    }
-
-    private void mostrarDialogo(Context context, String titulo, String mensaje) {
-        new Handler(Looper.getMainLooper()).post(() ->
-                new AlertDialog.Builder(context)
-                        .setTitle(titulo)
-                        .setMessage(mensaje)
-                        .setPositiveButton("OK", null)
-                        .show()
-        );
-    }
-
-    private void mostrarDialogoError(Context context, String mensaje) {
-        mostrarDialogo(context, "Error", mensaje);
     }
 }
