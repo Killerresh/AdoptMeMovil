@@ -36,14 +36,5 @@
                 android:singleLine="true" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_eliminar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Eliminar"
-            android:textColor="#FFF"
-            android:backgroundTint="#EA5959"
-            android:layout_gravity="end" />
-
     </LinearLayout>
 </ScrollView>

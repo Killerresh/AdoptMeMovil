@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment;
 public class AdopcionesRegistradasFragment extends Fragment {
 
     private EditText inputNombre;
-    private Button btnEliminar;
 
     @Nullable
     @Override
@@ -30,21 +29,6 @@ public class AdopcionesRegistradasFragment extends Fragment {
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        inputNombre = view.findViewById(R.id.input_nombre);
-        btnEliminar = view.findViewById(R.id.btn_eliminar);
-
-        btnEliminar.setOnClickListener(v -> {
-            String nombreMascota = inputNombre.getText().toString().trim();
-
-            if (TextUtils.isEmpty(nombreMascota)) {
-                Toast.makeText(getContext(), "Por favor seleccione a la mascota", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Aquí iría la lógica para eliminar la mascota del sistema (ej: base de datos)
-            // Por ahora, solo muestra un mensaje de éxito:
-            Toast.makeText(getContext(), "Mascota '" + nombreMascota + "' eliminada correctamente", Toast.LENGTH_SHORT).show();
-        });
+        
     }
 }

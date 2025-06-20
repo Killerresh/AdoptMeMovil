@@ -9,8 +9,6 @@ public class SolicitudAdopcion {
     public boolean estado;
     @SerializedName("MascotaID")
     public int mascotaID;
-    @SerializedName("AdoptanteID")
-    public Integer adoptanteID;
     @SerializedName("PublicadorID")
     public int publicadorID;
     @SerializedName("UbicacionID")
@@ -44,14 +42,6 @@ public class SolicitudAdopcion {
 
     public void setMascotaID(int mascotaID) {
         this.mascotaID = mascotaID;
-    }
-
-    public Integer getAdoptanteID() {
-        return adoptanteID;
-    }
-
-    public void setAdoptanteID(Integer adoptanteID) {
-        this.adoptanteID = adoptanteID;
     }
 
     public int getPublicadorID() {
