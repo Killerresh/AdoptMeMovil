@@ -14,14 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.adoptmemovil.modelo.Ubicacion;
-import com.example.adoptmemovil.utilidades.InterfazUsuarioUtils;
-import com.example.adoptmemovil.utilidades.UsuarioSingleton;
-
-import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.DelayedMapListener;
-import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -33,28 +27,30 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
-import org.osmdroid.views.overlay.MapEventsOverlay;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.adoptmemovil.R;
 import com.example.adoptmemovil.gRPC.ServicioUbicacionGrpcCliente;
+import com.example.adoptmemovil.modelo.Ubicacion;
+import com.example.adoptmemovil.utilidades.InterfazUsuarioUtils;
+import com.example.adoptmemovil.utilidades.UsuarioSingleton;
 
 import ubicacion.SolicitudCercana;
 import ubicacion.SolicitudesCercanas;
-
 public class MapaFragment extends Fragment {
 
     private MapView mapView;
-    private final List<Marker> marcadoresSolicitudes = new ArrayList<>();
+    private List<Marker> marcadoresSolicitudes = new ArrayList<>();
     private Marker marcadorUsuario = null;
     private ServicioUbicacionGrpcCliente servicioGrpc;
 
     private final Handler debounceHandler = new Handler(Looper.getMainLooper());
     private Runnable debounceRunnable;
 
-    private static final double ZOOM_VISIBLE = 15.0;
+    private static final double ZOOM_VISIBLE = 16.0;
     private static final GeoPoint POSICION_DEFECTO_MEXICO = new GeoPoint(23.6345, -102.5528);
 
     @Override
@@ -89,20 +85,27 @@ public class MapaFragment extends Fragment {
         mapView.getOverlays().add(new RotationGestureOverlay(mapView));
         mapView.getOverlays().add(new ScaleBarOverlay(mapView));
 
-        MapEventsOverlay eventos = new MapEventsOverlay(requireContext(), new MapEventsReceiver() {
-            @Override public boolean singleTapConfirmedHelper(GeoPoint p) { return false; }
-            @Override public boolean longPressHelper(GeoPoint p) { return false; }
+        mapView.addMapListener(new DelayedMapListener(new MapListener() {
+            @Override
             public boolean onScroll(ScrollEvent e) {
                 if (debounceRunnable != null) debounceHandler.removeCallbacks(debounceRunnable);
                 debounceRunnable = () -> {
-                    IGeoPoint centro = mapView.getMapCenter();
+                    GeoPoint centro = (GeoPoint) mapView.getMapCenter();
                     obtenerUsuariosCercanos(centro.getLatitude(), centro.getLongitude());
                 };
                 debounceHandler.postDelayed(debounceRunnable, 1000);
-                return false;
+                return true;
             }
-        });
-        mapView.getOverlays().add(eventos);
+
+            @Override
+            public boolean onZoom(ZoomEvent e) {
+                boolean visible = mapView.getZoomLevelDouble() >= ZOOM_VISIBLE;
+                for (Marker m : marcadoresSolicitudes)
+                    m.setEnabled(visible);
+                return true;
+            }
+        }, 200)); // 200ms debounce
+
 
         mapView.addMapListener(new DelayedMapListener(new MapListener() {
             @Override public boolean onZoom(ZoomEvent e) {
@@ -124,9 +127,7 @@ public class MapaFragment extends Fragment {
     }
 
     private void agregarMarcadorUsuario(GeoPoint ubicacion) {
-        if (marcadorUsuario != null) {
-            mapView.getOverlays().remove(marcadorUsuario);
-        }
+        if (marcadorUsuario != null) mapView.getOverlays().remove(marcadorUsuario);
 
         Marker marker = new Marker(mapView);
         marker.setPosition(ubicacion);
@@ -140,7 +141,6 @@ public class MapaFragment extends Fragment {
         marcadorUsuario = marker;
     }
 
-
     private void agregarMarcadorSolicitud(GeoPoint ubicacion) {
         Marker marker = new Marker(mapView);
         marker.setPosition(ubicacion);
@@ -152,6 +152,7 @@ public class MapaFragment extends Fragment {
         marker.setTitle("Solicitud cercana");
         marker.setSnippet("Toca para más info");
 
+        // Optional: set custom info window
         marker.setInfoWindow(new MarkerInfoWindow(R.layout.bubble, mapView));
 
         mapView.getOverlays().add(marker);
@@ -159,9 +160,8 @@ public class MapaFragment extends Fragment {
     }
 
     private void limpiarMarcadoresSolicitudes() {
-        for (Marker marcador : marcadoresSolicitudes) {
+        for (Marker marcador : marcadoresSolicitudes)
             mapView.getOverlays().remove(marcador);
-        }
         marcadoresSolicitudes.clear();
     }
 
@@ -187,42 +187,20 @@ public class MapaFragment extends Fragment {
                     mapView.invalidate();
                 });
 
-            } catch (java.util.concurrent.ExecutionException ex) {
-                Throwable causa = ex.getCause();
-                if (causa instanceof io.grpc.StatusRuntimeException) {
-                    Log.e("gRPC", "Error gRPC: " + ((io.grpc.StatusRuntimeException) causa).getStatus());
-                } else {
-                    Log.e("gRPC", "Error inesperado: ", causa);
-                }
-            } catch (InterruptedException ex) {
-                Log.e("gRPC", "Interrumpido", ex);
             } catch (Exception ex) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Error: " + ex.getMessage(), Toast.LENGTH_SHORT).show());
                 Log.e("gRPC", "Error obteniendo solicitudes", ex);
             }
         }, servicioGrpc.getExecutor());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
+    @Override public void onResume() { super.onResume(); mapView.onResume(); }
+    @Override public void onPause() { super.onPause(); mapView.onPause(); }
+    @Override public void onDestroy() {
         super.onDestroy();
         if (servicioGrpc != null) {
-            try {
-                servicioGrpc.shutdown();
-            } catch (InterruptedException e) {
-                Log.e("gRPC", "Error obteniendo solicitudes", e);
-            }
+            try { servicioGrpc.shutdown(); } catch (InterruptedException e) { e.printStackTrace(); }
         }
     }
 }

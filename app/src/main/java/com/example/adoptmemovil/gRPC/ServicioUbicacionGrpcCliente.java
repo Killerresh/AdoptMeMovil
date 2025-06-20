@@ -1,5 +1,7 @@
 package com.example.adoptmemovil.gRPC;
 
+import static com.example.adoptmemovil.utilidades.Constantes.DIRECCION_IP;
+
 import com.example.adoptmemovil.utilidades.HeaderClientInterceptor;
 import com.example.adoptmemovil.utilidades.UsuarioSingleton;
 
@@ -26,7 +28,7 @@ public class ServicioUbicacionGrpcCliente {
 
     public ServicioUbicacionGrpcCliente() {
         ManagedChannel baseChannel = ManagedChannelBuilder
-                .forAddress("192.168.137.1", 50051)
+                .forAddress(DIRECCION_IP, 50051)
                 .usePlaintext()
                 .build();
 
