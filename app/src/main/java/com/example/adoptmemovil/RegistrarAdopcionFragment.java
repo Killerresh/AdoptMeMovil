@@ -2,6 +2,8 @@ package com.example.adoptmemovil;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -13,9 +15,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,8 +44,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import io.grpc.stub.StreamObserver;
-import multimedia.ChunkArchivo;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,7 +52,8 @@ import retrofit2.Response;
 public class RegistrarAdopcionFragment extends Fragment {
 
     private static final int REQUEST_LOCATION_PERMISSIONS = 100;
-    private EditText inputNombre, inputEspecie, inputRaza, inputAno, inputMes, inputSexo, inputTamano, inputDescripcion;
+    private EditText inputNombre, inputEspecie, inputRaza, inputTamano, inputDescripcion, inputEdad;
+    private Spinner spinnerSexo;
     private Button btnElegirUbicacion, btnSubirFoto, btnSubirVideo, btnRegistrar;
     private ImageView imageViewPreview;
     private Uri imagenSeleccionada;
@@ -60,6 +64,10 @@ public class RegistrarAdopcionFragment extends Fragment {
     private ActivityResultLauncher<Intent> launcherMapa;
     private ActivityResultLauncher<Intent> launcherVideo;
 
+    // Variables para edad
+    private int edadAnoSeleccionado = 0;
+    private int edadMesSeleccionado = 0;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registrar_adopcion, container, false);
@@ -68,19 +76,24 @@ public class RegistrarAdopcionFragment extends Fragment {
         inputNombre = view.findViewById(R.id.input_nombre);
         inputEspecie = view.findViewById(R.id.input_especie);
         inputRaza = view.findViewById(R.id.input_raza);
-        inputAno = view.findViewById(R.id.input_ano);
-        inputMes = view.findViewById(R.id.input_mes);
-        inputSexo = view.findViewById(R.id.input_sexo);
+        inputEdad = view.findViewById(R.id.input_edad);
+        spinnerSexo = view.findViewById(R.id.spinnerSexo);
         inputTamano = view.findViewById(R.id.input_tamano);
         inputDescripcion = view.findViewById(R.id.input_descripcion);
 
-        // Botones
+        // Botones y vistas
         btnElegirUbicacion = view.findViewById(R.id.btn_elegir_ubicacion);
         btnSubirFoto = view.findViewById(R.id.btn_subir_foto);
         btnSubirVideo = view.findViewById(R.id.btn_subir_video);
         btnRegistrar = view.findViewById(R.id.btn_registrar);
         imageViewPreview = view.findViewById(R.id.imageViewPreview);
         txtNombreVideo = view.findViewById(R.id.txt_nombre_video);
+
+        // Spinner Sexo
+        String[] opcionesSexo = {"Macho", "Hembra"};
+        ArrayAdapter<String> adapterSexo = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, opcionesSexo);
+        adapterSexo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSexo.setAdapter(adapterSexo);
 
         // Lanzadores
         launcherGaleria = registerForActivityResult(
@@ -119,7 +132,7 @@ public class RegistrarAdopcionFragment extends Fragment {
                     }
                 });
 
-        // Acciones
+        // Listeners
         btnSubirFoto.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
@@ -136,6 +149,9 @@ public class RegistrarAdopcionFragment extends Fragment {
 
         btnRegistrar.setOnClickListener(v -> registrarAdopcion());
 
+        // Configurar diálogo para edad
+        inputEdad.setOnClickListener(v -> mostrarDialogoEdad());
+
         return view;
     }
 
@@ -145,6 +161,48 @@ public class RegistrarAdopcionFragment extends Fragment {
         if (path == null) return null;
         int lastSlash = path.lastIndexOf('/');
         return lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
+    }
+
+    private void mostrarDialogoEdad() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Selecciona la edad");
+
+        // Crear layout programáticamente con dos NumberPickers
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edad_picker, null);
+        NumberPicker npAnos = dialogView.findViewById(R.id.numberPickerAnos);
+        NumberPicker npMeses = dialogView.findViewById(R.id.numberPickerMeses);
+
+        npAnos.setMinValue(0);
+        npAnos.setMaxValue(20);
+        npAnos.setValue(edadAnoSeleccionado);
+
+        npMeses.setMinValue(0);
+        npMeses.setMaxValue(11);
+        npMeses.setValue(edadMesSeleccionado);
+
+        builder.setView(dialogView);
+
+        builder.setPositiveButton("Aceptar", (dialog, which) -> {
+            edadAnoSeleccionado = npAnos.getValue();
+            edadMesSeleccionado = npMeses.getValue();
+            String edadTexto = "";
+
+            if (edadAnoSeleccionado > 0) {
+                edadTexto += edadAnoSeleccionado + (edadAnoSeleccionado == 1 ? " año" : " años");
+            }
+            if (edadMesSeleccionado > 0) {
+                if (!edadTexto.isEmpty()) edadTexto += " y ";
+                edadTexto += edadMesSeleccionado + (edadMesSeleccionado == 1 ? " mes" : " meses");
+            }
+            if (edadTexto.isEmpty()) {
+                edadTexto = "0 meses";
+            }
+            inputEdad.setText(edadTexto);
+        });
+
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss());
+
+        builder.show();
     }
 
     private void verificarYPedirPermisoUbicacion() {
@@ -212,14 +270,13 @@ public class RegistrarAdopcionFragment extends Fragment {
         String nombre = inputNombre.getText().toString().trim();
         String especie = inputEspecie.getText().toString().trim();
         String raza = inputRaza.getText().toString().trim();
-        String ano = inputAno.getText().toString().trim();
-        String mes = inputMes.getText().toString().trim();
-        String sexo = inputSexo.getText().toString().trim();
+        String edad = inputEdad.getText().toString().trim();
+        String sexo = spinnerSexo.getSelectedItem().toString();
         String tamano = inputTamano.getText().toString().trim();
         String descripcion = inputDescripcion.getText().toString().trim();
 
         if (TextUtils.isEmpty(nombre) || TextUtils.isEmpty(especie) || TextUtils.isEmpty(raza)
-                || TextUtils.isEmpty(ano) || TextUtils.isEmpty(mes) || TextUtils.isEmpty(sexo)
+                || TextUtils.isEmpty(edad) || TextUtils.isEmpty(sexo)
                 || TextUtils.isEmpty(tamano) || TextUtils.isEmpty(descripcion)) {
             Toast.makeText(getContext(), "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
             return;
@@ -235,7 +292,8 @@ public class RegistrarAdopcionFragment extends Fragment {
             return;
         }
 
-        String edad = ano + " años " + mes + " meses";
+        // Formatear tamaño con "cm"
+        String tamanoConUnidad = tamano + " cm";
 
         Mascota mascota = new Mascota();
         mascota.setNombre(nombre);
@@ -243,7 +301,7 @@ public class RegistrarAdopcionFragment extends Fragment {
         mascota.setRaza(raza);
         mascota.setEdad(edad);
         mascota.setSexo(sexo);
-        mascota.setTamaño(tamano);
+        mascota.setTamaño(tamanoConUnidad);
         mascota.setDescripcion(descripcion);
 
         SolicitudAdopcion solicitud = new SolicitudAdopcion();
@@ -260,14 +318,19 @@ public class RegistrarAdopcionFragment extends Fragment {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     try {
-                        // Leemos el cuerpo como string para ver qué está regresando el backend
                         String respuestaTexto = response.body().string();
-                        Log.e("RESPUESTA_BACKEND", "Respuesta exitosa: " + respuestaTexto);
+                        MapaFragment fragmentB = new MapaFragment();
+
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, fragmentB)
+                                .commit(); // <-- sin addToBackStack
+
 
                         Toast.makeText(getContext(), "Registro exitoso", Toast.LENGTH_SHORT).show();
 
-                        // Aquí puedes agregar lógica condicional si detectas el ID
-                        // int mascotaID = Integer.parseInt(respuestaTexto); // <- solo si es un número plano
+                        // Aquí podrías llamar a subirFotoMascota si recibes el ID
+                        // int mascotaID = Integer.parseInt(respuestaTexto);
                         // subirFotoMascota(mascotaID);
 
                     } catch (Exception e) {
@@ -284,7 +347,6 @@ public class RegistrarAdopcionFragment extends Fragment {
                     }
                 }
             }
-
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
