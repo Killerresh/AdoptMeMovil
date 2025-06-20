@@ -168,14 +168,18 @@ public class MapaFragment extends Fragment {
                 Throwable causa = ex.getCause();
                 if (causa instanceof io.grpc.StatusRuntimeException) {
                     Log.e("gRPC", "Error gRPC: " + ((io.grpc.StatusRuntimeException) causa).getStatus());
+                    Toast.makeText(requireContext(),""+((io.grpc.StatusRuntimeException) causa).getStatus(), Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e("gRPC", "Error inesperado: ", causa);
+                    Toast.makeText(requireContext(),causa +"", Toast.LENGTH_SHORT).show();
                 }
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 Log.e("gRPC", "Interrumpido", ex);
+                Toast.makeText(requireContext(),""+ex, Toast.LENGTH_SHORT).show();
             } catch (Exception ex) {
                 Log.e("gRPC", "Error general", ex);
+                Toast.makeText(requireContext(),""+ex, Toast.LENGTH_SHORT).show();
             }
         }, servicioGrpc.getExecutor());
     }
