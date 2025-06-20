@@ -2,23 +2,36 @@ package com.example.adoptmemovil.modelo;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Mascota {
+import java.io.Serializable;
+
+public class Mascota implements Serializable {
+
     @SerializedName("MascotaID")
-    public int mascotaID;
+    private int mascotaID;
+
     @SerializedName("Nombre")
-    public String nombre;
+    private String nombre;
+
     @SerializedName("Especie")
-    public String especie;
+    private String especie;
+
     @SerializedName("Raza")
-    public String raza;
+    private String raza;
+
     @SerializedName("Edad")
-    public String edad;
+    private String edad;
+
     @SerializedName("Sexo")
-    public String sexo;
+    private String sexo;
+
     @SerializedName("Tamaño")
-    public String tamaño;
+    private String tamaño;
+
     @SerializedName("Descripcion")
-    public String descripcion;
+    private String descripcion;
+
+    // Campo auxiliar no proveniente del backend
+    private String fotoUrl;
 
     public int getMascotaID() {
         return mascotaID;
@@ -82,5 +95,13 @@ public class Mascota {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
     }
 }

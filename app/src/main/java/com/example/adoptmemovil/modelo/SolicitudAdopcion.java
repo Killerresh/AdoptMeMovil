@@ -3,23 +3,32 @@ package com.example.adoptmemovil.modelo;
 import com.google.gson.annotations.SerializedName;
 
 public class SolicitudAdopcion {
+
     @SerializedName("SolicitudAdopcionID")
-    public int solicitudAdopcionID;
+    private int solicitudAdopcionID;
+
     @SerializedName("Estado")
-    public boolean estado;
+    private boolean estado;
+
     @SerializedName("MascotaID")
-    public int mascotaID;
+    private int mascotaID;
+
     @SerializedName("PublicadorID")
-    public int publicadorID;
+    private int publicadorID;
+
     @SerializedName("UbicacionID")
-    public int ubicacionID;
+    private int ubicacionID;
+
     @SerializedName("FechaSolicitud")
     private String fecha;
+
     @SerializedName("Mascota")
     private Mascota mascota;
+
     @SerializedName("Ubicacion")
     private Ubicacion ubicacion;
 
+    // Getters y Setters
     public int getSolicitudAdopcionID() {
         return solicitudAdopcionID;
     }
@@ -60,6 +69,14 @@ public class SolicitudAdopcion {
         this.ubicacionID = ubicacionID;
     }
 
+    public String getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
+    }
+
     public Mascota getMascota() {
         return mascota;
     }
@@ -74,14 +91,5 @@ public class SolicitudAdopcion {
 
     public void setUbicacion(Ubicacion ubicacion) {
         this.ubicacion = ubicacion;
-    }
-
-    // ⬇️ Getter y Setter de la fecha
-    public String getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(String fecha) {
-        this.fecha = fecha;
     }
 }

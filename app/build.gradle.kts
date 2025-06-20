@@ -73,6 +73,9 @@ dependencies {
     implementation(libs.protobuf.javalite)
     implementation(libs.osmdroid.core)
     implementation(libs.osmdroid.wms)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.bumptech.glide)
+    annotationProcessor(libs.bumptech.glide.compiler)
 }
 
 protobuf {
