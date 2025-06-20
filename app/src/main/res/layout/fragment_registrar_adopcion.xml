@@ -28,7 +28,6 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- Campos de entrada -->
         <EditText
             android:id="@+id/input_nombre"
             android:layout_width="match_parent"
@@ -59,55 +58,35 @@
             android:singleLine="true"
             android:layout_marginBottom="10dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
-
-            <EditText
-                android:id="@+id/input_ano"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:hint="Año"
-                android:inputType="number"
-                android:background="@drawable/edittext_background"
-                android:padding="10dp"
-                android:singleLine="true"
-                android:layout_marginEnd="5dp" />
-
-            <EditText
-                android:id="@+id/input_mes"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:hint="Mes"
-                android:inputType="number"
-                android:background="@drawable/edittext_background"
-                android:padding="10dp"
-                android:singleLine="true"
-                android:layout_marginStart="5dp" />
-        </LinearLayout>
-
         <EditText
-            android:id="@+id/input_sexo"
+            android:id="@+id/input_edad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Sexo"
+            android:hint="Edad (años y meses)"
             android:background="@drawable/edittext_background"
             android:padding="10dp"
-            android:singleLine="true"
-            android:layout_marginBottom="10dp" />
+            android:focusable="false"
+            android:clickable="true"
+            android:layout_marginBottom="10dp"
+            android:cursorVisible="false" />
+
+        <Spinner
+            android:id="@+id/spinnerSexo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/edittext_background" />
 
         <EditText
             android:id="@+id/input_tamano"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tamaño"
+            android:hint="Tamaño (cm)"
             android:background="@drawable/edittext_background"
             android:padding="10dp"
+            android:inputType="number"
             android:singleLine="true"
+            android:maxLength="3"
             android:layout_marginBottom="10dp" />
 
         <EditText
@@ -120,7 +99,6 @@
             android:gravity="top"
             android:layout_marginBottom="10dp" />
 
-        <!-- Botones y vista previa -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -187,7 +165,6 @@
                 android:contentDescription="Vista previa de la imagen" />
         </LinearLayout>
 
-        <!-- Botón Registrar (se mantiene al final, alineado a la derecha) -->
         <Button
             android:id="@+id/btn_registrar"
             android:layout_width="wrap_content"
