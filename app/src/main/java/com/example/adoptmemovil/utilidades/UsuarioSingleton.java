@@ -5,6 +5,7 @@ import com.example.adoptmemovil.modelo.Usuario;
 public class UsuarioSingleton {
     private Usuario usuarioActual;
     private String token;
+    private boolean logueado = false;
 
     private UsuarioSingleton() { }
 
@@ -19,22 +20,24 @@ public class UsuarioSingleton {
     public void iniciarSesion(Usuario usuario, String token) {
         this.usuarioActual = usuario;
         this.token = token;
+        this.logueado = true;
     }
 
     public void cerrarSesion() {
         this.usuarioActual = null;
         this.token = null;
+        this.logueado = false;
     }
 
-    public boolean estaAutenticado() {
-        return token != null && !token.isEmpty();
+    public boolean estaLogueado() {
+        return logueado && usuarioActual != null && usuarioActual.getUsuarioID() > 0;
     }
 
     public Usuario getUsuarioActual() {
-        return usuarioActual;
+        return estaLogueado() ? usuarioActual : null;
     }
 
     public String getToken() {
-        return token;
+        return estaLogueado() ? token : null;
     }
 }

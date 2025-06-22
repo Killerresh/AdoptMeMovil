@@ -8,6 +8,7 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -25,4 +26,6 @@ public interface SolicitudAdopcionServicios {
 
     @GET("solicitudAdopciones/por-publicador/{publicadorId}")
     Call<List<SolicitudAdopcion>> listarSolicitudesPorUsuario(@Path("publicadorId") int publicadorId);
+    @DELETE("solicitudAdopciones/{id}")
+    Call<ResponseBody> eliminarSolicitudAdopcion(@Path("id") int solicitudAdopcionId);
 }

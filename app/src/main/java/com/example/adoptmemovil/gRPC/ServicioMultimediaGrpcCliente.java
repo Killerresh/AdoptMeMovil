@@ -1,10 +1,11 @@
 package com.example.adoptmemovil.gRPC;
 
-import static com.example.adoptmemovil.ConsultarUsuarioFragment.cargarFotoUsuario;
 import static com.example.adoptmemovil.utilidades.Constantes.DIRECCION_IP;
 import static com.example.adoptmemovil.utilidades.Constantes.TIPO_SUBIDA_FOTO_USUARIO;
+import static com.example.adoptmemovil.utilidades.InterfazUsuarioUtils.cargarFotoPerfil;
 
 import android.app.AlertDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.adoptmemovil.R;
 import com.example.adoptmemovil.utilidades.HeaderClientInterceptor;
 import com.example.adoptmemovil.utilidades.MetodoSubida;
 import com.example.adoptmemovil.utilidades.UsuarioSingleton;
@@ -100,14 +102,18 @@ public class ServicioMultimediaGrpcCliente {
 
                             @Override
                             public void onCompleted() {
-                                Log.d("gRPC", "Transferencia completada");
+                                UsuarioSingleton.getInstancia().getUsuarioActual().limpiarFoto();
+                                cargarFotoPerfil(context, token, imageView);
 
-                                if (TIPO_SUBIDA_FOTO_USUARIO.equals(tipoSubida)) {
-                                    new Handler(Looper.getMainLooper()).post(() -> {
-                                        cargarFotoUsuario(context, token, imageView);
-                                    });
+                                if (context instanceof Activity) {
+                                    Activity actividad = (Activity) context;
+                                    ImageView iconoMenu = actividad.findViewById(R.id.iv_perfil);
+                                    if (iconoMenu != null) {
+                                        cargarFotoPerfil(actividad, token, iconoMenu);
+                                    }
                                 }
-                                mostrarToast(context,"Archivos subidos correctamente");
+
+                                Log.d("gRPC", "Transferencia completada");
                             }
                         };
 
@@ -126,9 +132,14 @@ public class ServicioMultimediaGrpcCliente {
                 byte[] buffer = new byte[64 * 1024];
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    requestObserver.onNext(multimedia.ChunkArchivo.newBuilder()
-                            .setChunk(ByteString.copyFrom(buffer, 0, bytesRead))
-                            .build());
+                    try {
+                        requestObserver.onNext(ChunkArchivo.newBuilder()
+                                .setChunk(ByteString.copyFrom(buffer, 0, bytesRead))
+                                .build());
+                    } catch (Exception ex) {
+                        Log.e("gRPC", "Error al enviar chunk", ex);
+                        break;
+                    }
                 }
 
                 inputStream.close();
