@@ -3,17 +3,15 @@ package com.example.adoptmemovil.modelo;
 import com.google.gson.annotations.SerializedName;
 
 public class Solicitud {
+
     @SerializedName("SolicitudID")
     private int solicitudID;
-
-    @SerializedName("AdoptanteID")
-    private int adoptanteID;
 
     @SerializedName("AdopcionID")
     private int adopcionID;
 
     @SerializedName("NombreAdoptante")
-    private String nombreUsuarioAdoptante;  // Nuevo campo
+    private String nombreUsuarioAdoptante;
 
     // Getters y Setters
 
@@ -21,24 +19,12 @@ public class Solicitud {
         return solicitudID;
     }
 
-    public void setSolicitudID(int solicitudID) {
-        this.solicitudID = solicitudID;
-    }
-
-    public int getAdoptanteID() {
-        return adoptanteID;
-    }
-
-    public void setAdoptanteID(int adoptanteID) {
-        this.adoptanteID = adoptanteID;
-    }
-
     public int getAdopcionID() {
         return adopcionID;
     }
 
-    public void setAdopcionID(int adopcionID) {
-        this.adopcionID = adopcionID;
+    public void setSolicitudID(int solicitudID) {
+        this.solicitudID = solicitudID;
     }
 
     public String getNombreUsuarioAdoptante() {

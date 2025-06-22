@@ -61,8 +61,8 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
 
     @Override
     public void onBindViewHolder(@NonNull AdopcionesRegistradasAdapter.ViewHolder holder, int position) {
-        SolicitudAdopcion solicitud = listaSolicitudes.get(position);
-        Mascota mascota = solicitud.getMascota();
+        SolicitudAdopcion solicitudAdopcion = listaSolicitudes.get(position);
+        Mascota mascota = solicitudAdopcion.getMascota();
 
         if (mascota != null) {
             holder.txtNombreMascota.setText(mascota.getNombre());
@@ -73,7 +73,7 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
                     mascota.getEdad() != null ? mascota.getEdad() : "N/D");
             holder.txtEspecieRazaEdad.setText(especieRazaEdad);
 
-            if (solicitud.isEstado()) {
+            if (solicitudAdopcion.isEstado()) {
                 holder.txtEstadoSolicitud.setText("Estado: Adoptado");
                 holder.txtEstadoSolicitud.setTextColor(Color.parseColor("#BB0000"));
             } else {
@@ -91,17 +91,27 @@ public class AdopcionesRegistradasAdapter extends RecyclerView.Adapter<Adopcione
 
         holder.btnEliminar.setOnClickListener(v -> {
             if (eliminarListener != null) {
-                eliminarListener.onEliminarSolicitud(solicitud.getSolicitudAdopcionID());
+                eliminarListener.onEliminarSolicitud(solicitudAdopcion.getSolicitudAdopcionID());
             }
         });
 
-        holder.btnSolicitudesPendientes.setOnClickListener(v -> { /* TODO */ });
+        holder.btnSolicitudesPendientes.setOnClickListener(v -> {
+            if (context instanceof FragmentActivity) {
+                FragmentActivity activity = (FragmentActivity) context;
+
+                int adopcionID = solicitudAdopcion.getSolicitudAdopcionID(); // Asegúrate de tener el getter correcto
+
+                // Llama al fragmento y le pasa la adopcionID
+                SolicitudesPendientesDialogFragment dialog = SolicitudesPendientesDialogFragment.newInstance(adopcionID);
+                dialog.show(activity.getSupportFragmentManager(), "SolicitudesPendientesDialog");
+            }
+        });
 
         holder.btnDetallesMascota.setOnClickListener(v -> {
             if (context instanceof FragmentActivity) {
                 FragmentActivity activity = (FragmentActivity) context;
                 Bundle bundle = new Bundle();
-                bundle.putParcelable("mascota", solicitud.getMascota());
+                bundle.putParcelable("mascota", solicitudAdopcion.getMascota());
 
                 ConsultarAdopcionFragment fragment = new ConsultarAdopcionFragment();
                 fragment.setArguments(bundle);

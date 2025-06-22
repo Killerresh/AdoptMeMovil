@@ -16,6 +16,8 @@ import com.example.adoptmemovil.R;
 import com.example.adoptmemovil.modelo.Solicitud;
 import com.example.adoptmemovil.servicios.ClienteAPI;
 import com.example.adoptmemovil.servicios.SolicitudServicios;
+import com.google.gson.Gson;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +30,10 @@ public class SolicitudesPendientesDialogFragment extends DialogFragment {
 
     private int adopcionID;
     private List<Solicitud> listaSolicitudesPendientes = new ArrayList<>();
-    private SolicitudesPendientesAdapter.OnSolicitudActionListener actionListener;
 
     private RecyclerView recyclerView;
     private SolicitudesPendientesAdapter adapter;
     private TextView tvMensajeVacio;
-
 
     public static SolicitudesPendientesDialogFragment newInstance(int adopcionID) {
         SolicitudesPendientesDialogFragment fragment = new SolicitudesPendientesDialogFragment();
@@ -41,10 +41,6 @@ public class SolicitudesPendientesDialogFragment extends DialogFragment {
         args.putInt(ARG_ADOPCION_ID, adopcionID);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public void setOnSolicitudActionListener(SolicitudesPendientesAdapter.OnSolicitudActionListener listener) {
-        this.actionListener = listener;
     }
 
     @Nullable
@@ -62,7 +58,7 @@ public class SolicitudesPendientesDialogFragment extends DialogFragment {
         recyclerView = view.findViewById(R.id.recyclerSolicitudesPendientes);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new SolicitudesPendientesAdapter(listaSolicitudesPendientes, actionListener);
+        adapter = new SolicitudesPendientesAdapter(listaSolicitudesPendientes, requireContext());
         recyclerView.setAdapter(adapter);
 
         cargarSolicitudesPendientes(adopcionID);
@@ -82,19 +78,17 @@ public class SolicitudesPendientesDialogFragment extends DialogFragment {
                 if (response.isSuccessful() && response.body() != null) {
                     listaSolicitudesPendientes.clear();
                     listaSolicitudesPendientes.addAll(response.body());
+                    Log.d("RESPUESTA", new Gson().toJson(listaSolicitudesPendientes));
                     adapter.notifyDataSetChanged();
 
                     if (listaSolicitudesPendientes.isEmpty()) {
-                        // Mostrar mensaje y ocultar recycler
                         tvMensajeVacio.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     } else {
-                        // Ocultar mensaje y mostrar recycler
                         tvMensajeVacio.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    // Manejar respuesta vacía o error, por ejemplo mostrar mensaje vacío
                     tvMensajeVacio.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                 }
@@ -102,8 +96,7 @@ public class SolicitudesPendientesDialogFragment extends DialogFragment {
 
             @Override
             public void onFailure(Call<List<Solicitud>> call, Throwable t) {
-                // Manejar fallo de conexión
-                // Por ejemplo: mostrar un Toast o mensaje en pantalla
+                // Aquí puedes mostrar un Toast o mensaje de error si lo deseas
             }
         });
     }
